@@ -1,0 +1,10 @@
+# 1. 의존성
+node_modules/
+
+# 2. 보안
+.env
+
+# 3. Next.js 및 빌드 파일
+.next/
+dist/
+build/

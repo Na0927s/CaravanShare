@@ -1,0 +1,26 @@
+{
+  "name": "caravanshare",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "server": "npm start --prefix server",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Na0927s/CaravanShare.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Na0927s/CaravanShare/issues"
+  },
+  "homepage": "https://github.com/Na0927s/CaravanShare#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

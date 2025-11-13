@@ -1,0 +1,28 @@
+[
+  {
+    "id": "101",
+    "hostId": "1",
+    "name": "Cozy Camper",
+    "description": "A small but comfortable camper for a weekend getaway.",
+    "location": "Seoul, South Korea",
+    "pricePerDay": 100,
+    "capacity": 2,
+    "amenities": ["Kitchen", "Shower", "Wi-Fi"],
+    "photos": ["/images/placeholder-1.jpg", "/images/placeholder-2.jpg"],
+    "status": "available",
+    "createdAt": "2025-11-13T11:00:00Z"
+  },
+  {
+    "id": "102",
+    "hostId": "1",
+    "name": "Family Fun Finder",
+    "description": "A spacious caravan perfect for a family vacation.",
+    "location": "Busan, South Korea",
+    "pricePerDay": 150,
+    "capacity": 4,
+    "amenities": ["Kitchen", "Shower", "Air Conditioning", "TV"],
+    "photos": ["/images/placeholder-3.jpg", "/images/placeholder-4.jpg"],
+    "status": "available",
+    "createdAt": "2025-11-13T11:05:00Z"
+  }
+]
