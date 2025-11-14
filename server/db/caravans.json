@@ -1,0 +1,35 @@
+[
+  {
+    "id": "c1",
+    "name": "아늑한 숲속 카라반",
+    "description": "조용하고 아늑한 숲속 카라반입니다. 자연을 만끽하세요!",
+    "capacity": 4,
+    "amenities": ["침대", "주방", "화장실", "에어컨"],
+    "location": "강원도",
+    "pricePerDay": 80000,
+    "imageUrl": "https://example.com/caravan1.jpg",
+    "hostId": "u1"
+  },
+  {
+    "id": "c2",
+    "name": "바닷가 뷰 카라반",
+    "description": "아름다운 바닷가 전망을 자랑하는 카라반입니다. 서핑을 즐겨보세요!",
+    "capacity": 6,
+    "amenities": ["침대", "주방", "화장실", "샤워실", "바베큐"],
+    "location": "부산",
+    "pricePerDay": 120000,
+    "imageUrl": "https://example.com/caravan2.jpg",
+    "hostId": "u2"
+  },
+  {
+    "id": "c3",
+    "name": "도심 속 힐링 카라반",
+    "description": "도심에서 벗어나지 않고도 편안한 휴식을 취할 수 있는 카라반입니다.",
+    "capacity": 2,
+    "amenities": ["침대", "미니바", "TV", "와이파이"],
+    "location": "서울",
+    "pricePerDay": 70000,
+    "imageUrl": "https://example.com/caravan3.jpg",
+    "hostId": "u1"
+  }
+]

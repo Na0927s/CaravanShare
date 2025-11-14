@@ -1,0 +1,26 @@
+[
+  {
+    "id": "u1",
+    "name": "Host User",
+    "email": "host1@example.com",
+    "password_hash": "hashed_password_host1",
+    "role": "host",
+    "createdAt": "2025-11-14T10:00:00Z"
+  },
+  {
+    "id": "u2",
+    "name": "Guest User",
+    "email": "guest1@example.com",
+    "password_hash": "hashed_password_guest1",
+    "role": "guest",
+    "createdAt": "2025-11-14T10:05:00Z"
+  },
+  {
+    "id": "26c1efd2-114d-4341-8f14-4b0a2284b7b6",
+    "email": "na0927s@wku.ac.kr",
+    "password_hash": "hashed_na*0927ss",
+    "name": "na0927s",
+    "role": "guest",
+    "createdAt": "2025-11-14T04:13:33.854Z"
+  }
+]

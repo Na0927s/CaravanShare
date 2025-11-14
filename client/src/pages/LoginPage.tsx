@@ -1,10 +1,82 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Form, Button, Alert } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || 'Login failed');
+        return;
+      }
+
+      // Simulate storing a JWT token
+      localStorage.setItem('userToken', 'some-jwt-token');
+      setSuccess(data.message || 'Login successful! Redirecting to home...');
+      
+      // Dispatch a custom event to notify other components (e.g., Header)
+      window.dispatchEvent(new Event('loginSuccess'));
+
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+    } catch (err: any) {
+      setError(err.message || 'Network error');
+    }
+  };
+
   return (
-    <div>
+    <div className="login-container">
       <h1>Login</h1>
-      <p>Login to your CaravanShare account.</p>
+      {error && <Alert variant="danger">{error}</Alert>}
+      {success && <Alert variant="success">{success}</Alert>}
+      <Form onSubmit={handleSubmit}>
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label>Email address</Form.Label>
+          <Form.Control
+            type="email"
+            placeholder="Enter email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="formBasicPassword">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </Form.Group>
+
+        <Button variant="primary" type="submit">
+          Login
+        </Button>
+      </Form>
     </div>
   );
 };

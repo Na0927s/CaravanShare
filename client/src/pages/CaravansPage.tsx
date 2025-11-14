@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
+import CaravanCard from '../components/CaravanCard'; // Import CaravanCard
 
 interface Caravan {
   id: string;
-  hostId: string;
   name: string;
   description: string;
-  location: string;
-  pricePerDay: number;
   capacity: number;
   amenities: string[];
-  photos: string[];
-  status: 'available' | 'booked' | 'maintenance';
-  createdAt: string;
+  location: string;
+  pricePerDay: number;
+  imageUrl: string; // Changed from photos: string[] to imageUrl: string
 }
 
 const CaravansPage = () => {
@@ -48,7 +46,7 @@ const CaravansPage = () => {
   }
 
   return (
-    <div>
+    <div className="container mt-4">
       <h1>Available Caravans</h1>
       {caravans.length === 0 ? (
         <p>No caravans available at the moment.</p>
@@ -56,22 +54,7 @@ const CaravansPage = () => {
         <Row xs={1} md={2} lg={3} className="g-4">
           {caravans.map((caravan) => (
             <Col key={caravan.id}>
-              <Card>
-                <Card.Img variant="top" src={caravan.photos[0] || 'https://via.placeholder.com/150'} alt={caravan.name} />
-                <Card.Body>
-                  <Card.Title>{caravan.name}</Card.Title>
-                  <Card.Text>{caravan.description}</Card.Text>
-                  <Card.Text>
-                    <strong>Location:</strong> {caravan.location}
-                  </Card.Text>
-                  <Card.Text>
-                    <strong>Price per day:</strong> ${caravan.pricePerDay}
-                  </Card.Text>
-                  <Card.Text>
-                    <strong>Capacity:</strong> {caravan.capacity} people
-                  </Card.Text>
-                </Card.Body>
-              </Card>
+              <CaravanCard caravan={caravan} /> {/* Use CaravanCard component */}
             </Col>
           ))}
         </Row>

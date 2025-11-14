@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { Caravan } from '../models/Caravan';
 
-const dbPath = path.join(__dirname, '..', 'db', 'caravans.json');
+const dbPath = path.join(__dirname, '..', '..', 'db', 'caravans.json');
 
 const readCaravans = async (): Promise<Caravan[]> => {
   try {
