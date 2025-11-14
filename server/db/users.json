@@ -22,5 +22,13 @@
     "name": "na0927s",
     "role": "guest",
     "createdAt": "2025-11-14T04:13:33.854Z"
+  },
+  {
+    "id": "4ba924a1-9f6b-4330-b8dc-d19f53c104e3",
+    "email": "mj46534379@gmail.com",
+    "password_hash": "hashed_12345",
+    "name": "나민주",
+    "role": "host",
+    "createdAt": "2025-11-14T04:46:51.551Z"
   }
 ]

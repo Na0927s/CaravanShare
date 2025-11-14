@@ -30,11 +30,12 @@ const LoginPage = () => {
         return;
       }
 
-      // Simulate storing a JWT token
-      localStorage.setItem('userToken', 'some-jwt-token');
+      // Store token and user info in localStorage
+      localStorage.setItem('userToken', 'some-jwt-token'); // Placeholder token
+      localStorage.setItem('userInfo', JSON.stringify(data.user)); // Store user object
+
       setSuccess(data.message || 'Login successful! Redirecting to home...');
       
-      // Dispatch a custom event to notify other components (e.g., Header)
       window.dispatchEvent(new Event('loginSuccess'));
 
       setTimeout(() => {

@@ -27,6 +27,7 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('userToken'); // Clear the simulated token
+    localStorage.removeItem('userInfo'); // Clear user info
     window.dispatchEvent(new Event('logoutSuccess')); // Dispatch logout event
     navigate('/'); // Redirect to home after logout
   };
