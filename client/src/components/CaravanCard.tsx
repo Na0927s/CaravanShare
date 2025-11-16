@@ -39,7 +39,9 @@ const CaravanCard: React.FC<CaravanCardProps> = ({ caravan, currentUserId, onDel
           가격: {caravan.pricePerDay.toLocaleString()}원/1일
         </Card.Text>
         <div className="d-flex justify-content-between">
-          <Button variant="primary">자세히 보기</Button>
+          <Link to={`/caravans/${caravan.id}`}>
+            <Button variant="primary">자세히 보기</Button>
+          </Link>
           {!isOwner && currentUserId && (
             <Button variant="success" onClick={() => onReserve(caravan.id)}>예약하기</Button>
           )}

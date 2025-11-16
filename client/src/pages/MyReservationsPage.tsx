@@ -89,6 +89,11 @@ const MyReservationsPage = () => {
                       <Button variant="success" size="sm">Pay Now</Button>
                     </Link>
                   )}
+                  {reservation.status === 'confirmed' && (
+                    <Link to={`/review/${reservation.caravanId}`}>
+                      <Button variant="info" size="sm">Write Review</Button>
+                    </Link>
+                  )}
                 </td>
               </tr>
             ))}

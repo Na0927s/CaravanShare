@@ -11,6 +11,8 @@ import CaravanEditPage from './pages/CaravanEditPage'; // Import the new page
 import MyReservationsPage from './pages/MyReservationsPage';
 import HostDashboardPage from './pages/HostDashboardPage';
 import PaymentPage from './pages/PaymentPage';
+import ReviewPage from './pages/ReviewPage';
+import CaravanDetailPage from './pages/CaravanDetailPage';
 import './App.css';
 
 function App() {
@@ -22,6 +24,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/caravans" element={<CaravansPage />} />
+            <Route path="/caravans/:id" element={<CaravanDetailPage />} />
             <Route path="/caravans/new" element={<CaravanRegistrationPage />} />
             <Route path="/caravans/:id/edit" element={<CaravanEditPage />} /> {/* Add the edit route */}
             <Route path="/login" element={<LoginPage />} />
@@ -29,6 +32,7 @@ function App() {
             <Route path="/my-reservations" element={<MyReservationsPage />} />
             <Route path="/host-dashboard" element={<HostDashboardPage />} />
             <Route path="/payment/:id" element={<PaymentPage />} />
+            <Route path="/review/:id" element={<ReviewPage />} />
           </Routes>
         </Container>
       </main>
