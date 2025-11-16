@@ -18,9 +18,10 @@ interface CaravanCardProps {
   caravan: Caravan;
   currentUserId: string | null;
   onDelete: (id: string) => void;
+  onReserve: (id: string) => void;
 }
 
-const CaravanCard: React.FC<CaravanCardProps> = ({ caravan, currentUserId, onDelete }) => {
+const CaravanCard: React.FC<CaravanCardProps> = ({ caravan, currentUserId, onDelete, onReserve }) => {
   const isOwner = caravan.hostId === currentUserId;
 
   return (
@@ -39,6 +40,9 @@ const CaravanCard: React.FC<CaravanCardProps> = ({ caravan, currentUserId, onDel
         </Card.Text>
         <div className="d-flex justify-content-between">
           <Button variant="primary">자세히 보기</Button>
+          {!isOwner && currentUserId && (
+            <Button variant="success" onClick={() => onReserve(caravan.id)}>예약하기</Button>
+          )}
           {isOwner && (
             <div className="d-flex gap-2">
               <Link to={`/caravans/${caravan.id}/edit`}>

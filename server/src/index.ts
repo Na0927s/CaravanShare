@@ -3,6 +3,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import caravanRoutes from './routes/caravanRoutes';
 import userRoutes from './routes/userRoutes'; // Import userRoutes
+import reservationRoutes from './routes/reservationRoutes';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -12,6 +13,7 @@ app.use(bodyParser.json());
 
 app.use('/api/caravans', caravanRoutes);
 app.use('/api/auth', userRoutes); // Use userRoutes
+app.use('/api/reservations', reservationRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello from CaravanShare Backend!');

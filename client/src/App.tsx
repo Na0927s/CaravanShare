@@ -8,6 +8,9 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import CaravanRegistrationPage from './pages/CaravanRegistrationPage';
 import CaravanEditPage from './pages/CaravanEditPage'; // Import the new page
+import MyReservationsPage from './pages/MyReservationsPage';
+import HostDashboardPage from './pages/HostDashboardPage';
+import PaymentPage from './pages/PaymentPage';
 import './App.css';
 
 function App() {
@@ -23,6 +26,9 @@ function App() {
             <Route path="/caravans/:id/edit" element={<CaravanEditPage />} /> {/* Add the edit route */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/my-reservations" element={<MyReservationsPage />} />
+            <Route path="/host-dashboard" element={<HostDashboardPage />} />
+            <Route path="/payment/:id" element={<PaymentPage />} />
           </Routes>
         </Container>
       </main>

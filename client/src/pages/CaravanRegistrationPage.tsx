@@ -16,6 +16,7 @@ const CaravanRegistrationPage = () => {
   const [location, setLocation] = useState('');
   const [pricePerDay, setPricePerDay] = useState(50000);
   const [imageUrl, setImageUrl] = useState('');
+  const [amenities, setAmenities] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -55,7 +56,16 @@ const CaravanRegistrationPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, description, capacity, location, pricePerDay, imageUrl, hostId }),
+        body: JSON.stringify({ 
+          name, 
+          description, 
+          capacity, 
+          location, 
+          pricePerDay, 
+          imageUrl, 
+          hostId,
+          amenities: amenities.split(',').map(item => item.trim()),
+        }),
       });
 
       const data = await response.json();
@@ -109,6 +119,11 @@ const CaravanRegistrationPage = () => {
             <Form.Label>Image URL</Form.Label>
             <Form.Control type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
             <Form.Text className="text-muted">If left blank, a placeholder image will be used.</Form.Text>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Amenities (comma-separated)</Form.Label>
+            <Form.Control type="text" value={amenities} onChange={(e) => setAmenities(e.target.value)} />
+            <Form.Text className="text-muted">e.g., Wi-Fi, Kitchen, Bathroom</Form.Text>
           </Form.Group>
           <Button variant="primary" type="submit">
             Register Caravan

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Col, Row, Button, Alert } from 'react-bootstrap';
+import { Col, Row, Button, Alert, Modal, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import CaravanCard from '../components/CaravanCard';
 
@@ -27,6 +27,11 @@ const CaravansPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedCaravanId, setSelectedCaravanId] = useState<string | null>(null);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [reservationError, setReservationError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCaravans = async () => {
@@ -73,6 +78,56 @@ const CaravansPage = () => {
     }
   };
 
+  const handleReserve = (id: string) => {
+    setSelectedCaravanId(id);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedCaravanId(null);
+    setStartDate('');
+    setEndDate('');
+    setReservationError(null);
+  };
+
+  const handleReservationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setReservationError(null);
+
+    if (!selectedCaravanId || !userInfo) {
+      setReservationError('Cannot process reservation.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3001/api/reservations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          caravanId: selectedCaravanId,
+          guestId: userInfo.id,
+          startDate,
+          endDate,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setReservationError(data.message || 'Failed to create reservation.');
+        return;
+      }
+
+      handleCloseModal();
+      alert('Reservation created successfully!');
+    } catch (err: any) {
+      setReservationError(err.message || 'Network error');
+    }
+  };
+
   if (loading) {
     return <div>Loading caravans...</div>;
   }
@@ -100,11 +155,34 @@ const CaravansPage = () => {
                 caravan={caravan}
                 currentUserId={userInfo ? userInfo.id : null}
                 onDelete={handleDelete}
+                onReserve={handleReserve}
               />
             </Col>
           ))}
         </Row>
       )}
+
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Make a Reservation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {reservationError && <Alert variant="danger">{reservationError}</Alert>}
+          <Form onSubmit={handleReservationSubmit}>
+            <Form.Group className="mb-3">
+              <Form.Label>Start Date</Form.Label>
+              <Form.Control type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>End Date</Form.Label>
+              <Form.Control type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Submit Reservation
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
