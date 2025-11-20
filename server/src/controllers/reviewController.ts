@@ -38,7 +38,7 @@ export const createReview = async (req: Request, res: Response) => {
 
   // 2. Host gets points based on the rating
   const caravans = await readData<Caravan>(CARAVANS_FILE);
-  const caravan = caravans.find(c => c.id === caravanId);
+  const caravan = caravans.find(c => String(c.id) === String(caravanId)); // Ensure string comparison
   if (caravan) {
     if (rating === 5) {
       await updateTrustScore(caravan.hostId, 15);
@@ -53,8 +53,19 @@ export const createReview = async (req: Request, res: Response) => {
 export const getReviewsForCaravan = async (req: Request, res: Response) => {
   const { id } = req.params;
   const reviews = await readData<Review>(REVIEWS_FILE);
-  const caravanReviews = reviews.filter(r => r.caravanId === id);
-  res.json(caravanReviews);
+  const caravanReviews = reviews.filter(r => String(r.caravanId) === String(id));
+
+  console.log('--- DEBUG getReviewsForCaravan ---');
+  console.log('Requested Caravan ID (req.params.id):', id, 'Type:', typeof id);
+  if (reviews.length > 0) {
+    console.log('Sample Review Caravan ID in DB:', reviews[0].caravanId, 'Type:', typeof reviews[0].caravanId);
+  } else {
+    console.log('No reviews loaded from DB.');
+  }
+  console.log('Caravan Reviews Found:', caravanReviews.length);
+  console.log('---------------------------------');
+
+  res.json(caravanReviews); // Will return [] if no reviews found, with 200 OK
 };
 
 export const getReviewsByUserId = async (req: Request, res: Response) => {
@@ -65,7 +76,7 @@ export const getReviewsByUserId = async (req: Request, res: Response) => {
   }
 
   const reviews = await readData<Review>(REVIEWS_FILE);
-  const userReviews = reviews.filter(r => r.guestId === userId);
+  const userReviews = reviews.filter(r => String(r.guestId) === String(userId)); // Ensure string comparison
 
   res.json(userReviews);
 };

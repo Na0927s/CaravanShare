@@ -1,18 +1,1 @@
-[
-  {
-    "id": "1",
-    "email": "host@example.com",
-    "password_hash": "password123",
-    "name": "John Doe",
-    "role": "host",
-    "createdAt": "2025-11-13T10:00:00Z"
-  },
-  {
-    "id": "2",
-    "email": "guest@example.com",
-    "password_hash": "password123",
-    "name": "Jane Smith",
-    "role": "guest",
-    "createdAt": "2025-11-13T10:05:00Z"
-  }
-]
+[]

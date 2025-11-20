@@ -1,34 +1,20 @@
 [
   {
-    "id": "u1",
-    "name": "Host User",
-    "email": "host1@example.com",
-    "password_hash": "hashed_password_host1",
-    "role": "host",
-    "createdAt": "2025-11-14T10:00:00Z"
-  },
-  {
-    "id": "u2",
-    "name": "Guest User",
-    "email": "guest1@example.com",
-    "password_hash": "hashed_password_guest1",
-    "role": "guest",
-    "createdAt": "2025-11-14T10:05:00Z"
-  },
-  {
-    "id": "26c1efd2-114d-4341-8f14-4b0a2284b7b6",
-    "email": "na0927s@wku.ac.kr",
-    "password_hash": "hashed_na*0927ss",
-    "name": "na0927s",
-    "role": "guest",
-    "createdAt": "2025-11-14T04:13:33.854Z"
-  },
-  {
     "id": "4ba924a1-9f6b-4330-b8dc-d19f53c104e3",
     "email": "mj46534379@gmail.com",
     "password_hash": "hashed_12345",
     "name": "나민주",
     "role": "host",
-    "createdAt": "2025-11-14T04:46:51.551Z"
+    "createdAt": "2025-11-14T04:46:51.551Z",
+    "trustScore": 15
+  },
+  {
+    "id": "eb8c7c3b-add6-4389-8b4f-21814428899a",
+    "email": "na0927s@wku.ac.kr",
+    "password_hash": "hashed_na0927s",
+    "name": "na0927s",
+    "role": "guest",
+    "createdAt": "2025-11-20T06:27:07.310Z",
+    "trustScore": 15
   }
 ]

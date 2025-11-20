@@ -1,10 +1,10 @@
 [
   {
-    "id": "0c0f7712-57ea-4ab4-b2fb-b75d393e9fc2",
-    "caravanId": "8dcb2529-471b-4d38-b9ef-d75fad65d527",
-    "guestId": "26c1efd2-114d-4341-8f14-4b0a2284b7b6",
+    "id": "3e899e5b-d78e-462e-9d12-c59a487ba321",
+    "caravanId": "f4836c0e-f2d1-4d38-8780-08ad2a2a54a7",
+    "guestId": "eb8c7c3b-add6-4389-8b4f-21814428899a",
     "rating": 5,
-    "comment": "1234567890",
-    "createdAt": "2025-11-16T15:56:48.369Z"
+    "comment": "ex1",
+    "createdAt": "2025-11-20T06:29:31.813Z"
   }
 ]

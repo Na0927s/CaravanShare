@@ -1,13 +1,16 @@
 [
   {
-    "id": "8dcb2529-471b-4d38-b9ef-d75fad65d527",
-    "name": "2",
-    "description": "1",
+    "id": "f4836c0e-f2d1-4d38-8780-08ad2a2a54a7",
+    "name": "ex1",
+    "description": "ex1",
     "capacity": 2,
-    "amenities": [],
-    "location": "1",
+    "amenities": [
+      "ex1"
+    ],
+    "location": "ex1",
     "pricePerDay": 50000,
-    "imageUrl": "1",
-    "hostId": "4ba924a1-9f6b-4330-b8dc-d19f53c104e3"
+    "imageUrl": "https://via.placeholder.com/300x200.png?text=ex1",
+    "hostId": "4ba924a1-9f6b-4330-b8dc-d19f53c104e3",
+    "status": "available"
   }
 ]

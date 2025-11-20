@@ -8,7 +8,8 @@ const USERS_FILE = 'users.json';
 // This function will be called by other controllers
 export const updateTrustScore = async (userId: string, points: number) => {
   const users = await readData<User>(USERS_FILE);
-  const userIndex = users.findIndex(u => u.id === userId);
+  // 수정: 문자열로 변환하여 비교
+  const userIndex = users.findIndex(u => String(u.id) === String(userId));
 
   if (userIndex !== -1) {
     users[userIndex].trustScore = (users[userIndex].trustScore || 0) + points;
@@ -74,6 +75,7 @@ export const login = async (req: Request, res: Response) => {
   res.status(200).json({ message: 'Login successful', user: { id: user.id, email: user.email, name: user.name, role: user.role, trustScore: user.trustScore || 0 } });
 };
 
+// ★ 여기가 핵심 수정 부분입니다! ★
 export const getUserById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -82,7 +84,9 @@ export const getUserById = async (req: Request, res: Response) => {
   }
 
   const users = await readData<User>(USERS_FILE);
-  const user = users.find(u => u.id === id);
+  
+  // 수정: ID가 숫자든 문자든 상관없이 문자열로 변환해서 비교 (String vs String)
+  const user = users.find(u => String(u.id) === String(id));
 
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
@@ -102,7 +106,9 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 
   const users = await readData<User>(USERS_FILE);
-  const userIndex = users.findIndex(u => u.id === id);
+  
+  // 수정: 여기도 문자열 비교로 안전하게 변경
+  const userIndex = users.findIndex(u => String(u.id) === String(id));
 
   if (userIndex === -1) {
     return res.status(404).json({ message: 'User not found' });
