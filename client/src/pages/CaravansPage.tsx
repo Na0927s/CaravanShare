@@ -15,6 +15,7 @@ interface Caravan {
   pricePerDay: number;
   imageUrl: string;
   hostId: string;
+  status: 'available' | 'reserved' | 'maintenance'; // Add status field
 }
 
 interface UserInfo {
@@ -133,6 +134,16 @@ const CaravansPage = () => {
     }
   };
 
+  // Filter caravans based on user role
+  const filteredCaravans = caravans.filter(caravan => {
+    if (userInfo?.role === 'guest') {
+      return caravan.status === 'available';
+    }
+    // Hosts will see all caravans, regardless of status
+    return true;
+  });
+
+
   if (loading) {
     return <div>Loading caravans...</div>;
   }
@@ -150,11 +161,11 @@ const CaravansPage = () => {
           </Link>
         )}
       </div>
-      {caravans.length === 0 ? (
+      {filteredCaravans.length === 0 ? (
         <p>No caravans available at the moment.</p>
       ) : (
         <Row xs={1} md={2} lg={3} className="g-4">
-          {caravans.map((caravan) => (
+          {filteredCaravans.map((caravan) => (
             <Col key={caravan.id}>
               <CaravanCard
                 caravan={caravan}

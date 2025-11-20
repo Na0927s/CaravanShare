@@ -40,11 +40,14 @@ export const getCaravanById = async (req: Request, res: Response) => {
 };
 
 export const createCaravan = async (req: Request, res: Response) => {
-  const { name, description, capacity, amenities, location, pricePerDay, imageUrl, hostId } = req.body;
+  const { name, description, capacity, amenities, location, pricePerDay, imageUrl, hostId, status } = req.body;
 
   // Basic validation
   if (!name || !description || !capacity || !location || !pricePerDay || !hostId) {
     return res.status(400).json({ message: 'Missing required fields' });
+  }
+  if (status && !['available', 'reserved', 'maintenance'].includes(status)) {
+    return res.status(400).json({ message: 'Invalid status provided' });
   }
 
   const newCaravan: Caravan = {
@@ -57,6 +60,7 @@ export const createCaravan = async (req: Request, res: Response) => {
     pricePerDay,
     imageUrl: imageUrl || `https://via.placeholder.com/300x200.png?text=${name.replace(/\s/g, '+')}`,
     hostId,
+    status: status || 'available', // Set default status
   };
 
   const caravans = await readCaravans();
@@ -68,6 +72,12 @@ export const createCaravan = async (req: Request, res: Response) => {
 
 export const updateCaravan = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const { status } = req.body; // Extract status for validation
+
+  if (status && !['available', 'reserved', 'maintenance'].includes(status)) {
+    return res.status(400).json({ message: 'Invalid status provided' });
+  }
+
   const caravans = await readCaravans();
   const caravanIndex = caravans.findIndex(c => c.id === id);
 

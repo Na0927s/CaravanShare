@@ -29,7 +29,7 @@ const CaravanEditPage = () => {
     fetchCaravan();
   }, [id]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setCaravan(prev => ({ ...prev, [name]: value }));
   };
@@ -93,6 +93,14 @@ const CaravanEditPage = () => {
         <Form.Group className="mb-3">
           <Form.Label>Image URL</Form.Label>
           <Form.Control type="text" name="imageUrl" value={caravan.imageUrl || ''} onChange={handleChange} />
+        </Form.Group>
+        {/* New Status Field */}
+        <Form.Group className="mb-3">
+          <Form.Label>Status</Form.Label>
+          <Form.Control as="select" name="status" value={caravan.status || 'available'} onChange={handleChange}>
+            <option value="available">Available</option>
+            <option value="maintenance">Under Maintenance</option>
+          </Form.Control>
         </Form.Group>
         <Button variant="primary" type="submit">
           Save Changes

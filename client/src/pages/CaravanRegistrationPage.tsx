@@ -17,6 +17,7 @@ const CaravanRegistrationPage = () => {
   const [pricePerDay, setPricePerDay] = useState(50000);
   const [imageUrl, setImageUrl] = useState('');
   const [amenities, setAmenities] = useState('');
+  const [status, setStatus] = useState<'available' | 'maintenance'>('available'); // Add status state
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -65,6 +66,7 @@ const CaravanRegistrationPage = () => {
           imageUrl, 
           hostId,
           amenities: amenities.split(',').map(item => item.trim()),
+          status, // Include status in the payload
         }),
       });
 
@@ -125,6 +127,14 @@ const CaravanRegistrationPage = () => {
             <Form.Control type="text" value={amenities} onChange={(e) => setAmenities(e.target.value)} />
             <Form.Text className="text-muted">e.g., Wi-Fi, Kitchen, Bathroom</Form.Text>
           </Form.Group>
+          {/* New Status Field */}
+          <Form.Group className="mb-3">
+            <Form.Label>Status</Form.Label>
+            <Form.Control as="select" value={status} onChange={(e) => setStatus(e.target.value as 'available' | 'maintenance')}>
+              <option value="available">Available</option>
+              <option value="maintenance">Under Maintenance</option>
+            </Form.Control>
+          </Form.Group>
           <Button variant="primary" type="submit">
             Register Caravan
           </Button>
@@ -135,3 +145,4 @@ const CaravanRegistrationPage = () => {
 };
 
 export default CaravanRegistrationPage;
+

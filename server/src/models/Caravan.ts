@@ -8,4 +8,5 @@ export interface Caravan {
   capacity: number;
   amenities: string[];
   imageUrl: string;
+  status: 'available' | 'reserved' | 'maintenance'; // Add status field
 }

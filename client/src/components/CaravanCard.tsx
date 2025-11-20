@@ -12,6 +12,7 @@ interface Caravan {
   pricePerDay: number;
   imageUrl: string;
   hostId: string;
+  status: 'available' | 'reserved' | 'maintenance'; // Add status field
 }
 
 interface CaravanCardProps {
@@ -37,6 +38,8 @@ const CaravanCard: React.FC<CaravanCardProps> = ({ caravan, currentUserId, onDel
           위치: {caravan.location}
           <br />
           가격: {caravan.pricePerDay.toLocaleString()}원/1일
+          <br />
+          상태: {caravan.status === 'available' ? '이용 가능' : caravan.status === 'maintenance' ? '정비 중' : '예약됨'}
         </Card.Text>
         <div className="d-flex justify-content-between">
           <Link to={`/caravans/${caravan.id}`}>
