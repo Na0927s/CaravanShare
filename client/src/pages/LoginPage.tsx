@@ -78,6 +78,24 @@ const LoginPage = () => {
           Login
         </Button>
       </Form>
+
+      <div className="social-login">
+        <div className="divider">
+          <span>OR</span>
+        </div>
+        <Button variant="light" className="social-login-button naver-login" onClick={() => alert('Naver login is not implemented yet.')}>
+          <img src="/images/naver-logo.png" alt="Naver" />
+          Login with Naver
+        </Button>
+        <Button variant="light" className="social-login-button kakao-login" onClick={() => alert('Kakao login is not implemented yet.')}>
+          <img src="/images/kakao-logo.png" alt="Kakao" />
+          Login with Kakao
+        </Button>
+        <Button variant="light" className="social-login-button google-login" onClick={() => alert('Google login is not implemented yet.')}>
+          <img src="/images/google-logo.png" alt="Google" />
+          Login with Google
+        </Button>
+      </div>
     </div>
   );
 };
