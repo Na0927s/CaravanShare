@@ -13,7 +13,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use('/api/caravans', caravanRoutes);
-app.use('/api/auth', userRoutes); // Use userRoutes
+app.use('/api/users', userRoutes); // Use userRoutes
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/reviews', reviewRoutes);
 
