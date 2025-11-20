@@ -34,5 +34,14 @@
     "endDate": "2025-11-25",
     "status": "confirmed",
     "totalPrice": 400000
+  },
+  {
+    "id": "b0bd5fd2-80da-4c30-94ef-f9b239f9a2c9",
+    "caravanId": "8dcb2529-471b-4d38-b9ef-d75fad65d527",
+    "guestId": "26c1efd2-114d-4341-8f14-4b0a2284b7b6",
+    "startDate": "2025-11-28",
+    "endDate": "2025-11-29",
+    "status": "pending",
+    "totalPrice": 50000
   }
 ]
