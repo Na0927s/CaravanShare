@@ -20,12 +20,31 @@ const HostDashboardPage = () => {
       if (parsedInfo.role === 'host') {
         setUserInfo(parsedInfo);
       } else {
-        setAuthError("You must be a host to view this page.");
+        setAuthError("이 페이지를 보려면 호스트여야 합니다.");
       }
     } else {
-      setAuthError("You must be logged in to view this page.");
+      setAuthError("이 페이지를 보려면 로그인해야 합니다.");
     }
   }, []);
+
+  const getStatusText = (status: Reservation['status']) => {
+    switch (status) {
+      case 'pending':
+        return '승인 대기 중';
+      case 'approved':
+        return '승인';
+      case 'rejected':
+        return '거절';
+      case 'awaiting_payment':
+        return '결제 대기 중';
+      case 'confirmed':
+        return '확정';
+      case 'cancelled':
+        return '취소';
+      default:
+        return status;
+    }
+  };
 
   const handleStatusUpdate = async (id: string, status: 'approved' | 'rejected') => {
     try {
@@ -39,7 +58,7 @@ const HostDashboardPage = () => {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Failed to update reservation status');
+        throw new Error(data.message || '예약 상태 업데이트에 실패했습니다.');
       }
       
       refetch(); // Refetch data after successful update
@@ -57,22 +76,22 @@ const HostDashboardPage = () => {
 
   return (
     <div className="container mt-4">
-      <h1>Host Dashboard</h1>
+      <h1>호스트 대시보드</h1>
       {pageError && <Alert variant="danger">{pageError}</Alert>}
       {!pageError && reservations && reservations.length === 0 ? (
-        <p>You have no pending reservations for your caravans.</p>
+        <p>카라반에 대한 예약 요청이 없습니다.</p>
       ) : !pageError && reservations ? (
         <Table striped bordered hover responsive>
           <thead>
             <tr>
               <th>#</th>
-              <th>Caravan ID</th>
-              <th>Guest ID</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Total Price</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>카라반 ID</th>
+              <th>게스트 ID</th>
+              <th>시작일</th>
+              <th>종료일</th>
+              <th>총 금액</th>
+              <th>상태</th>
+              <th>작업</th>
             </tr>
           </thead>
           <tbody>
@@ -83,16 +102,16 @@ const HostDashboardPage = () => {
                 <td>{reservation.guestId.substring(0, 8)}...</td>
                 <td>{new Date(reservation.startDate).toLocaleDateString()}</td>
                 <td>{new Date(reservation.endDate).toLocaleDateString()}</td>
-                <td>{reservation.totalPrice.toLocaleString()} KRW</td>
-                <td>{reservation.status}</td>
+                <td>{reservation.totalPrice.toLocaleString()} 원</td>
+                <td>{getStatusText(reservation.status)}</td>
                 <td>
                   {reservation.status === 'pending' && (
                     <>
                       <Button variant="success" size="sm" onClick={() => handleStatusUpdate(reservation.id, 'approved')}>
-                        Approve
+                        승인
                       </Button>{' '}
                       <Button variant="danger" size="sm" onClick={() => handleStatusUpdate(reservation.id, 'rejected')}>
-                        Reject
+                        거절
                       </Button>
                     </>
                   )}

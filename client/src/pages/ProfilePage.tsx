@@ -40,7 +40,7 @@ const ProfilePage = () => {
     setSuccess(null);
 
     if (!userInfo) {
-      setError('User not logged in.');
+      setError('사용자가 로그인되어 있지 않습니다.');
       return;
     }
 
@@ -56,16 +56,16 @@ const ProfilePage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || 'Failed to update profile');
+        setError(data.message || '프로필 업데이트에 실패했습니다.');
         return;
       }
 
       const updatedUserInfo = { ...userInfo, name, contact };
       localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
       setUserInfo(updatedUserInfo);
-      setSuccess('Profile updated successfully!');
+      setSuccess('프로필이 성공적으로 업데이트되었습니다!');
     } catch (err: any) {
-      setError(err.message || 'Network error');
+      setError(err.message || '네트워크 오류');
     }
   };
 
@@ -75,18 +75,18 @@ const ProfilePage = () => {
 
   return (
     <Container className="mt-5">
-      <h1>My Profile</h1>
+      <h1>내 프로필</h1>
       <Alert variant="info">
-        Your Trust Score: {userInfo.trustScore}
+        신뢰도 점수: {userInfo.trustScore}
       </Alert>
       {error && <Alert variant="danger">{error}</Alert>}
       {success && <Alert variant="success">{success}</Alert>}
       <Form onSubmit={handleUpdateProfile}>
         <Form.Group className="mb-3" controlId="formName">
-          <Form.Label>Name</Form.Label>
+          <Form.Label>이름</Form.Label>
           <Form.Control
             type="text"
-            placeholder="Enter your name"
+            placeholder="이름을 입력하세요"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -94,7 +94,7 @@ const ProfilePage = () => {
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formEmail">
-          <Form.Label>Email address</Form.Label>
+          <Form.Label>이메일 주소</Form.Label>
           <Form.Control
             type="email"
             value={email}
@@ -104,47 +104,47 @@ const ProfilePage = () => {
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formContact">
-          <Form.Label>Contact Information</Form.Label>
+          <Form.Label>연락처 정보</Form.Label>
           <Form.Control
             type="text"
-            placeholder="Enter contact info (e.g., phone number)"
+            placeholder="연락처를 입력하세요 (예: 전화번호)"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
           />
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formRole">
-          <Form.Label>Role</Form.Label>
+          <Form.Label>역할</Form.Label>
           <Form.Control
             as="select"
             value={role}
             readOnly
             disabled
           >
-            <option value="guest">Guest</option>
-            <option value="host">Host</option>
+            <option value="guest">게스트</option>
+            <option value="host">호스트</option>
           </Form.Control>
         </Form.Group>
 
         <Button variant="primary" type="submit">
-          Update Profile
+          프로필 업데이트
         </Button>
       </Form>
 
-      <h2 className="mt-5">My Reviews</h2>
+      <h2 className="mt-5">내 리뷰</h2>
       {loadingReviews ? (
         <Spinner animation="border" />
       ) : reviewsError ? (
         <Alert variant="danger">{reviewsError.message}</Alert>
       ) : userReviews && userReviews.length === 0 ? (
-        <Alert variant="info">You haven't written any reviews yet.</Alert>
+        <Alert variant="info">아직 작성한 리뷰가 없습니다.</Alert>
       ) : (
         <ListGroup className="mt-3">
           {userReviews?.map(review => (
             <ListGroup.Item key={review.id}>
-              <h5>Rating: {review.rating}/5</h5>
+              <h5>평점: {review.rating}/5</h5>
               <p>{review.comment}</p>
-              <small className="text-muted">Reviewed on: {new Date(review.createdAt).toLocaleDateString()}</small>
+              <small className="text-muted">작성일: {new Date(review.createdAt).toLocaleDateString()}</small>
             </ListGroup.Item>
           ))}
         </ListGroup>

@@ -1,19 +1,7 @@
 import React from 'react';
 import { Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-
-interface Caravan {
-  id: string;
-  name: string;
-  description: string;
-  capacity: number;
-  amenities: string[];
-  location: string;
-  pricePerDay: number;
-  imageUrl: string;
-  hostId: string;
-  status: 'available' | 'reserved' | 'maintenance'; // Add status field
-}
+import { Caravan } from '../models/Caravan';
 
 interface CaravanCardProps {
   caravan: Caravan;
@@ -25,28 +13,42 @@ interface CaravanCardProps {
 const CaravanCard: React.FC<CaravanCardProps> = ({ caravan, currentUserId, onDelete, onReserve }) => {
   const isOwner = caravan.hostId === currentUserId;
 
+  const getStatusText = (status: 'available' | 'reserved' | 'maintenance') => {
+    switch (status) {
+      case 'available':
+        return '이용 가능';
+      case 'reserved':
+        return '예약됨';
+      case 'maintenance':
+        return '정비 중';
+      default:
+        return status;
+    }
+  };
+
   return (
-    <Card style={{ width: '18rem', margin: '1rem' }}>
-      <Card.Img variant="top" src={caravan.imageUrl} alt={caravan.name} />
-      <Card.Body>
+    <Card className="h-100">
+      <Card.Img variant="top" src={caravan.imageUrl} alt={caravan.name} style={{ height: '200px', objectFit: 'cover' }} />
+      <Card.Body className="d-flex flex-column">
         <Card.Title>{caravan.name}</Card.Title>
-        <Card.Text>
-          {caravan.description}
-          <br />
-          수용 인원: {caravan.capacity}명
-          <br />
-          위치: {caravan.location}
-          <br />
-          가격: {caravan.pricePerDay.toLocaleString()}원/1일
-          <br />
-          상태: {caravan.status === 'available' ? '이용 가능' : caravan.status === 'maintenance' ? '정비 중' : '예약됨'}
+        <Card.Text as="div">
+          <small className="text-muted">{caravan.location}</small>
+          <div>
+            <strong>수용 인원:</strong> {caravan.capacity}명
+          </div>
+          <div>
+            <strong>가격:</strong> {caravan.pricePerDay.toLocaleString()}원/1일
+          </div>
+          <div>
+            <strong>상태:</strong> {getStatusText(caravan.status)}
+          </div>
         </Card.Text>
-        <div className="d-flex justify-content-between">
+        <div className="mt-auto d-flex justify-content-between align-items-center">
           <Link to={`/caravans/${caravan.id}`}>
-            <Button variant="primary">자세히 보기</Button>
+            <Button variant="primary" size="sm">자세히 보기</Button>
           </Link>
-          {!isOwner && currentUserId && (
-            <Button variant="success" onClick={() => onReserve(caravan.id)}>예약하기</Button>
+          {!isOwner && currentUserId && caravan.status === 'available' && (
+            <Button variant="success" size="sm" onClick={() => onReserve(caravan.id)}>예약하기</Button>
           )}
           {isOwner && (
             <div className="d-flex gap-2">

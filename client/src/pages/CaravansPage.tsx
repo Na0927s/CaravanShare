@@ -6,17 +6,11 @@ import 'react-datepicker/dist/react-datepicker.css';
 import CaravanCard from '../components/CaravanCard';
 import useFetch from '../hooks/useFetch';
 import { Caravan } from '../models/Caravan';
-
-interface UserInfo {
-  id: string;
-  name: string;
-  email: string;
-  role: 'host' | 'guest';
-}
+import { User } from '../models/User';
 
 const CaravansPage = () => {
   const { data: caravans, loading, error, refetch } = useFetch<Caravan[]>('/caravans');
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedCaravanId, setSelectedCaravanId] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -32,7 +26,7 @@ const CaravansPage = () => {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this caravan?')) {
+    if (!window.confirm('정말로 이 카라반을 삭제하시겠습니까?')) {
       return;
     }
 
@@ -43,7 +37,7 @@ const CaravansPage = () => {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Failed to delete caravan');
+        throw new Error(data.message || '카라반 삭제에 실패했습니다.');
       }
 
       refetch(); // Refetch the caravan list after deletion
@@ -70,7 +64,7 @@ const CaravansPage = () => {
     setReservationError(null);
 
     if (!selectedCaravanId || !userInfo || !startDate || !endDate) {
-      setReservationError('Please select both start and end dates.');
+      setReservationError('시작일과 종료일을 모두 선택해주세요.');
       return;
     }
 
@@ -94,15 +88,15 @@ const CaravansPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        setReservationError(data.message || 'Failed to create reservation.');
+        setReservationError(data.message || '예약 생성에 실패했습니다.');
         return;
       }
 
       handleCloseModal();
-      alert('Reservation created successfully!');
+      alert('예약이 성공적으로 생성되었습니다!');
       refetch(); // Refetch to update caravan status if it changes
     } catch (err: any) {
-      setReservationError(err.message || 'Network error');
+      setReservationError(err.message || '네트워크 오류');
     }
   };
 
@@ -117,25 +111,25 @@ const CaravansPage = () => {
 
 
   if (loading) {
-    return <div>Loading caravans...</div>;
+    return <div>카라반 목록을 불러오는 중...</div>;
   }
 
   return (
     <div className="container mt-4">
-      {error && <Alert variant="danger">Error fetching data: {error.message}</Alert>}
+      {error && <Alert variant="danger">데이터를 불러오는 중 오류가 발생했습니다: {error.message}</Alert>}
       {generalError && <Alert variant="danger" onClose={() => setGeneralError(null)} dismissible>{generalError}</Alert>}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1>Available Caravans</h1>
+        <h1>예약 가능한 카라반</h1>
         {userInfo && userInfo.role === 'host' && (
           <Link to="/caravans/new">
             <Button variant="primary">
-              Register New Caravan
+            새 카라반 등록
             </Button>
           </Link>
         )}
       </div>
       {filteredCaravans.length === 0 ? (
-        <p>No caravans available at the moment.</p>
+        <p>현재 예약 가능한 카라반이 없습니다.</p>
       ) : (
         <Row xs={1} md={2} lg={3} className="g-4">
           {filteredCaravans.map((caravan) => (
@@ -153,13 +147,13 @@ const CaravansPage = () => {
 
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Make a Reservation</Modal.Title>
+          <Modal.Title>예약하기</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {reservationError && <Alert variant="danger">{reservationError}</Alert>}
           <Form onSubmit={handleReservationSubmit}>
             <Form.Group className="mb-3">
-              <Form.Label>Start Date</Form.Label>
+              <Form.Label>시작일</Form.Label>
               <DatePicker
                 selected={startDate}
                 onChange={(date: Date | null) => setStartDate(date)}
@@ -173,7 +167,7 @@ const CaravansPage = () => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>End Date</Form.Label>
+              <Form.Label>종료일</Form.Label>
               <DatePicker
                 selected={endDate}
                 onChange={(date: Date | null) => setEndDate(date)}
@@ -187,7 +181,7 @@ const CaravansPage = () => {
               />
             </Form.Group>
             <Button variant="primary" type="submit">
-              Submit Reservation
+            예약 제출
             </Button>
           </Form>
         </Modal.Body>

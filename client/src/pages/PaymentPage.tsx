@@ -26,19 +26,19 @@ const PaymentPage = () => {
         // We fetch all reservations for the user and find the one with the matching id.
         const storedUserInfo = localStorage.getItem('userInfo');
         if (!storedUserInfo) {
-          throw new Error('You must be logged in to make a payment.');
+          throw new Error('결제를 진행하려면 로그인해야 합니다.');
         }
         const guestId = JSON.parse(storedUserInfo).id;
         const response = await fetch(`http://localhost:3001/api/reservations/my-reservations?guestId=${guestId}`);
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`HTTP 오류! 상태: ${response.status}`);
         }
         const data: Reservation[] = await response.json();
         const currentReservation = data.find(r => r.id === id);
         if (currentReservation) {
           setReservation(currentReservation);
         } else {
-          throw new Error('Reservation not found.');
+          throw new Error('예약을 찾을 수 없습니다.');
         }
       } catch (err: any) {
         setError(err.message);
@@ -60,10 +60,10 @@ const PaymentPage = () => {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Payment failed');
+        throw new Error(data.message || '결제 실패');
       }
 
-      alert('Payment successful! Your reservation is confirmed.');
+      alert('결제가 성공적으로 완료되었습니다! 예약이 확정되었습니다.');
       navigate('/my-reservations');
     } catch (err: any) {
       setError(err.message);
@@ -73,7 +73,7 @@ const PaymentPage = () => {
   };
 
   if (loading) {
-    return <Spinner animation="border" />;
+    return <Spinner as="span" animation="border" size="sm" />;
   }
 
   if (error) {
@@ -81,33 +81,33 @@ const PaymentPage = () => {
   }
 
   if (!reservation) {
-    return <Alert variant="warning">Reservation not found.</Alert>;
+    return <Alert variant="warning">예약을 찾을 수 없습니다.</Alert>;
   }
 
   return (
     <div className="container mt-4">
-      <h1>Confirm Your Payment</h1>
+      <h1>결제 확인</h1>
       <Card>
-        <Card.Header as="h5">Reservation Details</Card.Header>
+        <Card.Header as="h5">예약 상세 정보</Card.Header>
         <Card.Body>
           <Card.Text>
-            <strong>Reservation ID:</strong> {reservation.id}
+            <strong>예약 ID:</strong> {reservation.id}
           </Card.Text>
           <Card.Text>
-            <strong>Caravan ID:</strong> {reservation.caravanId}
+            <strong>카라반 ID:</strong> {reservation.caravanId}
           </Card.Text>
           <Card.Text>
-            <strong>Dates:</strong> {new Date(reservation.startDate).toLocaleDateString()} - {new Date(reservation.endDate).toLocaleDateString()}
+            <strong>날짜:</strong> {new Date(reservation.startDate).toLocaleDateString()} - {new Date(reservation.endDate).toLocaleDateString()}
           </Card.Text>
           <Card.Title>
-            Total Price: {reservation.totalPrice.toLocaleString()} KRW
+            총 금액: {reservation.totalPrice.toLocaleString()} 원
           </Card.Title>
           {reservation.status === 'awaiting_payment' ? (
             <Button onClick={handleConfirmPayment} disabled={paying}>
-              {paying ? <Spinner as="span" animation="border" size="sm" /> : 'Confirm Payment'}
+              {paying ? <Spinner as="span" animation="border" size="sm" /> : '결제 확인'}
             </Button>
           ) : (
-            <Alert variant="info">This reservation does not require payment at this time. Current status: {reservation.status}</Alert>
+            <Alert variant="info">이 예약은 현재 결제가 필요하지 않습니다. 현재 상태: {reservation.status}</Alert>
           )}
         </Card.Body>
       </Card>

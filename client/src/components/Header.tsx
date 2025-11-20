@@ -53,31 +53,31 @@ const Header = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/">Home</Nav.Link>
-            <Nav.Link as={Link} to="/caravans">Caravans</Nav.Link>
+            <Nav.Link as={Link} to="/">홈</Nav.Link>
+            <Nav.Link as={Link} to="/caravans">카라반 목록</Nav.Link>
             {isLoggedIn && userInfo?.role === 'host' && (
               <>
-                <Nav.Link as={Link} to="/caravans/new">Register Caravan</Nav.Link>
-                <Nav.Link as={Link} to="/host-dashboard">Host Dashboard</Nav.Link>
+                <Nav.Link as={Link} to="/caravans/new">카라반 등록</Nav.Link>
+                <Nav.Link as={Link} to="/host-dashboard">호스트 대시보드</Nav.Link>
               </>
             )}
             {isLoggedIn && userInfo?.role === 'guest' && (
-              <Nav.Link as={Link} to="/my-reservations">My Reservations</Nav.Link>
+              <Nav.Link as={Link} to="/my-reservations">내 예약</Nav.Link>
             )}
             {isLoggedIn && (
               <>
-                <Nav.Link as={Link} to="/profile">My Profile</Nav.Link>
-                <Nav.Link as={Link} to="/payment-history">Payment History</Nav.Link>
+                <Nav.Link as={Link} to="/profile">내 프로필</Nav.Link>
+                <Nav.Link as={Link} to="/payment-history">결제 내역</Nav.Link>
               </>
             )}
           </Nav>
           <Nav>
             {isLoggedIn ? (
-              <Button variant="outline-secondary" onClick={handleLogout}>Logout</Button>
+              <Button variant="outline-secondary" onClick={handleLogout}>로그아웃</Button>
             ) : (
               <>
-                <Nav.Link as={Link} to="/login">Login</Nav.Link>
-                <Nav.Link as={Link} to="/signup">Sign Up</Nav.Link>
+                <Nav.Link as={Link} to="/login">로그인</Nav.Link>
+                <Nav.Link as={Link} to="/signup">회원가입</Nav.Link>
               </>
             )}
           </Nav>

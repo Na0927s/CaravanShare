@@ -19,7 +19,7 @@ const CaravanDetailPage = () => {
 
   const averageRating = reviews && reviews.length > 0
     ? (reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length).toFixed(1)
-    : 'No reviews yet';
+    : '아직 리뷰가 없습니다.';
 
   if (loadingCaravan || loadingReviews) {
     return <Spinner animation="border" />;
@@ -31,7 +31,7 @@ const CaravanDetailPage = () => {
   }
 
   if (!caravan) {
-    return <Alert variant="warning">Caravan not found.</Alert>;
+    return <Alert variant="warning">카라반을 찾을 수 없습니다.</Alert>;
   }
 
   return (
@@ -42,32 +42,32 @@ const CaravanDetailPage = () => {
           <Card.Title as="h2">{caravan.name}</Card.Title>
           <Card.Text>{caravan.description}</Card.Text>
           <ListGroup variant="flush">
-            <ListGroup.Item>Capacity: {caravan.capacity} people</ListGroup.Item>
-            <ListGroup.Item>Location: {caravan.location}</ListGroup.Item>
-            <ListGroup.Item>Amenities: {caravan.amenities.join(', ')}</ListGroup.Item>
-            <ListGroup.Item>Price: {caravan.pricePerDay.toLocaleString()} KRW / day</ListGroup.Item>
+            <ListGroup.Item>수용 인원: {caravan.capacity}명</ListGroup.Item>
+            <ListGroup.Item>위치: {caravan.location}</ListGroup.Item>
+            <ListGroup.Item>편의시설: {caravan.amenities.join(', ')}</ListGroup.Item>
+            <ListGroup.Item>가격: {caravan.pricePerDay.toLocaleString()}원 / 1일</ListGroup.Item>
             <ListGroup.Item>
-              Host: {loadingHost ? 'Loading...' : (host ? `${host.name} (Trust Score: ${host.trustScore})` : 'N/A')}
+              호스트: {loadingHost ? '로딩 중...' : (host ? `${host.name} (신뢰도 점수: ${host.trustScore})` : '정보 없음')}
             </ListGroup.Item>
-            <ListGroup.Item><strong>Average Rating: {averageRating}</strong></ListGroup.Item>
+            <ListGroup.Item><strong>평균 평점: {averageRating}</strong></ListGroup.Item>
           </ListGroup>
         </Card.Body>
       </Card>
 
       <div className="mt-4">
-        <h3>Reviews</h3>
+        <h3>리뷰</h3>
         {reviews && reviews.length > 0 ? (
           <ListGroup>
             {reviews.map(review => (
               <ListGroup.Item key={review.id}>
-                <h5>Rating: {review.rating}/5</h5>
+                <h5>평점: {review.rating}/5</h5>
                 <p>{review.comment}</p>
-                <small className="text-muted">By Guest {review.guestId.substring(0, 8)}... on {new Date(review.createdAt).toLocaleDateString()}</small>
+                <small className="text-muted">작성자: 게스트 {review.guestId.substring(0, 8)}... | 작성일: {new Date(review.createdAt).toLocaleDateString()}</small>
               </ListGroup.Item>
             ))}
           </ListGroup>
         ) : (
-          <p>No reviews for this caravan yet.</p>
+          <p>이 카라반에 대한 리뷰가 아직 없습니다.</p>
         )}
       </div>
     </div>

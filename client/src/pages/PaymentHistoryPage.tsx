@@ -36,11 +36,11 @@ const PaymentHistoryPage = () => {
 
   return (
     <Container className="mt-5">
-      <h1>Payment History</h1>
+      <h1>결제 내역</h1>
       {pageError && <Alert variant="danger">{pageError.message}</Alert>}
 
       {paymentHistory && paymentHistory.length === 0 ? (
-        <Alert variant="info">No payment history found.</Alert>
+        <Alert variant="info">결제 내역이 없습니다.</Alert>
       ) : paymentHistory ? (
         <ListGroup>
           {paymentHistory.map((reservation) => {
@@ -53,14 +53,14 @@ const PaymentHistoryPage = () => {
                       <img src={caravan.imageUrl} alt={caravan.name} style={{ width: '150px', height: '100px', objectFit: 'cover', marginRight: '20px' }} />
                     )}
                     <div>
-                      <Card.Title>{caravan ? caravan.name : 'Unknown Caravan'}</Card.Title>
+                      <Card.Title>{caravan ? caravan.name : '알 수 없는 카라반'}</Card.Title>
                       <Card.Text as="div">
                         <small className="text-muted">
-                          <strong>Reservation ID:</strong> {reservation.id.substring(0,8)}...
+                          <strong>예약 ID:</strong> {reservation.id.substring(0,8)}...
                           <br />
-                          <strong>Dates:</strong> {new Date(reservation.startDate).toLocaleDateString()} to {new Date(reservation.endDate).toLocaleDateString()}
+                          <strong>날짜:</strong> {new Date(reservation.startDate).toLocaleDateString()} ~ {new Date(reservation.endDate).toLocaleDateString()}
                           <br />
-                          <strong>Total Price:</strong> {reservation.totalPrice.toLocaleString()} KRW
+                          <strong>총 결제 금액:</strong> {reservation.totalPrice.toLocaleString()} 원
                         </small>
                       </Card.Text>
                     </div>

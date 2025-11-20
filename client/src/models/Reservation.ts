@@ -4,6 +4,6 @@ export interface Reservation {
   guestId: string;
   startDate: string;
   endDate: string;
-  status: 'pending' | 'approved' | 'rejected' | 'awaiting_payment' | 'confirmed';
+  status: 'pending' | 'approved' | 'rejected' | 'awaiting_payment' | 'confirmed' | 'cancelled';
   totalPrice: number;
 }

@@ -18,9 +18,28 @@ const MyReservationsPage = () => {
     if (storedUserInfo) {
       setUserInfo(JSON.parse(storedUserInfo));
     } else {
-      setAuthError("You must be logged in to view your reservations.");
+      setAuthError("예약 내역을 보려면 로그인해야 합니다.");
     }
   }, []);
+
+  const getStatusText = (status: Reservation['status']) => {
+    switch (status) {
+      case 'pending':
+        return '승인 대기 중';
+      case 'approved':
+        return '승인';
+      case 'rejected':
+        return '거절';
+      case 'awaiting_payment':
+        return '결제 대기 중';
+      case 'confirmed':
+        return '확정';
+      case 'cancelled':
+        return '취소';
+      default:
+        return status;
+    }
+  };
 
   if (loading) {
     return <Spinner animation="border" />;
@@ -30,21 +49,21 @@ const MyReservationsPage = () => {
 
   return (
     <div className="container mt-4">
-      <h1>My Reservations</h1>
+      <h1>내 예약</h1>
       {pageError && <Alert variant="danger">{pageError}</Alert>}
       {!pageError && reservations && reservations.length === 0 ? (
-        <p>You have no reservations.</p>
+        <p>예약 내역이 없습니다.</p>
       ) : !pageError && reservations ? (
         <Table striped bordered hover responsive>
           <thead>
             <tr>
               <th>#</th>
-              <th>Caravan ID</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Total Price</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th>카라반 ID</th>
+              <th>시작일</th>
+              <th>종료일</th>
+              <th>총 금액</th>
+              <th>상태</th>
+              <th>조치</th>
             </tr>
           </thead>
           <tbody>
@@ -54,17 +73,17 @@ const MyReservationsPage = () => {
                 <td>{reservation.caravanId.substring(0, 8)}...</td>
                 <td>{new Date(reservation.startDate).toLocaleDateString()}</td>
                 <td>{new Date(reservation.endDate).toLocaleDateString()}</td>
-                <td>{reservation.totalPrice.toLocaleString()} KRW</td>
-                <td>{reservation.status}</td>
+                <td>{reservation.totalPrice.toLocaleString()} 원</td>
+                <td>{getStatusText(reservation.status)}</td>
                 <td>
                   {reservation.status === 'awaiting_payment' && (
                     <Link to={`/payment/${reservation.id}`}>
-                      <Button variant="success" size="sm">Pay Now</Button>
+                      <Button variant="success" size="sm">지금 결제</Button>
                     </Link>
                   )}
                   {reservation.status === 'confirmed' && (
                     <Link to={`/review/${reservation.caravanId}`}>
-                      <Button variant="info" size="sm">Write Review</Button>
+                      <Button variant="info" size="sm">리뷰 작성</Button>
                     </Link>
                   )}
                 </td>

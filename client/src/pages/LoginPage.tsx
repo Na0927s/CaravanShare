@@ -26,7 +26,7 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || 'Login failed');
+        setError(data.message || '로그인에 실패했습니다.');
         return;
       }
 
@@ -34,7 +34,7 @@ const LoginPage = () => {
       localStorage.setItem('userToken', 'some-jwt-token'); // Placeholder token
       localStorage.setItem('userInfo', JSON.stringify(data.user)); // Store user object
 
-      setSuccess(data.message || 'Login successful! Redirecting to home...');
+      setSuccess(data.message || '로그인 성공! 홈으로 이동합니다...');
       
       window.dispatchEvent(new Event('loginSuccess'));
 
@@ -42,21 +42,21 @@ const LoginPage = () => {
         navigate('/');
       }, 1500);
     } catch (err: any) {
-      setError(err.message || 'Network error');
+      setError(err.message || '네트워크 오류가 발생했습니다.');
     }
   };
 
   return (
-    <div className="login-container">
-      <h1>Login</h1>
+    <div className="container mt-5" style={{ maxWidth: '400px' }}>
+      <h1 className="text-center mb-4">로그인</h1>
       {error && <Alert variant="danger">{error}</Alert>}
       {success && <Alert variant="success">{success}</Alert>}
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Email address</Form.Label>
+          <Form.Label>이메일 주소</Form.Label>
           <Form.Control
             type="email"
-            placeholder="Enter email"
+            placeholder="이메일을 입력하세요"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -64,36 +64,39 @@ const LoginPage = () => {
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
+          <Form.Label>비밀번호</Form.Label>
           <Form.Control
             type="password"
-            placeholder="Password"
+            placeholder="비밀번호"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </Form.Group>
 
-        <Button variant="primary" type="submit">
-          Login
-        </Button>
+        <div className="d-grid">
+          <Button variant="primary" type="submit">
+            로그인
+          </Button>
+        </div>
       </Form>
 
-      <div className="social-login">
-        <div className="divider">
-          <span>OR</span>
-        </div>
-        <Button variant="light" className="social-login-button naver-login" onClick={() => alert('Naver login is not implemented yet.')}>
-          <img src="/images/naver-logo.png" alt="Naver" />
-          Login with Naver
+      <div className="divider my-4">
+        <span className="divider-text">또는</span>
+      </div>
+
+      <div className="d-grid gap-2">
+        <Button variant="light" className="border" onClick={() => alert('네이버 로그인은 아직 구현되지 않았습니다.')}>
+          <img src="/images/naver-logo.png" alt="네이버" style={{ height: '20px', marginRight: '10px' }} />
+          네이버로 로그인
         </Button>
-        <Button variant="light" className="social-login-button kakao-login" onClick={() => alert('Kakao login is not implemented yet.')}>
-          <img src="/images/kakao-logo.png" alt="Kakao" />
-          Login with Kakao
+        <Button variant="light" className="border" onClick={() => alert('카카오 로그인은 아직 구현되지 않았습니다.')}>
+          <img src="/images/kakao-logo.png" alt="카카오" style={{ height: '20px', marginRight: '10px' }} />
+          카카오로 로그인
         </Button>
-        <Button variant="light" className="social-login-button google-login" onClick={() => alert('Google login is not implemented yet.')}>
-          <img src="/images/google-logo.png" alt="Google" />
-          Login with Google
+        <Button variant="light" className="border" onClick={() => alert('구글 로그인은 아직 구현되지 않았습니다.')}>
+          <img src="/images/google-logo.png" alt="구글" style={{ height: '20px', marginRight: '10px' }} />
+          구글로 로그인
         </Button>
       </div>
     </div>

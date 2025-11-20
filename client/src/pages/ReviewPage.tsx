@@ -17,7 +17,7 @@ const ReviewPage = () => {
 
     const storedUserInfo = localStorage.getItem('userInfo');
     if (!storedUserInfo) {
-      setError('You must be logged in to write a review.');
+      setError('리뷰를 작성하려면 로그인해야 합니다.');
       setSubmitting(false);
       return;
     }
@@ -39,10 +39,10 @@ const ReviewPage = () => {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Failed to submit review');
+        throw new Error(data.message || '리뷰 제출에 실패했습니다.');
       }
 
-      alert('Review submitted successfully!');
+      alert('리뷰가 성공적으로 제출되었습니다!');
       navigate(`/caravans/${id}`);
     } catch (err: any) {
       setError(err.message);
@@ -53,12 +53,12 @@ const ReviewPage = () => {
 
   return (
     <div className="container mt-4">
-      <h1>Write a Review</h1>
-      <p>For Caravan ID: {id}</p>
+      <h1>리뷰 작성</h1>
+      <p>카라반 ID:</p>
       {error && <Alert variant="danger">{error}</Alert>}
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
-          <Form.Label>Rating (1-5)</Form.Label>
+          <Form.Label>평점 (1-5)</Form.Label>
           <Form.Control
             type="number"
             min="1"
@@ -69,7 +69,7 @@ const ReviewPage = () => {
           />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Comment</Form.Label>
+          <Form.Label>댓글</Form.Label>
           <Form.Control
             as="textarea"
             rows={4}
@@ -79,7 +79,7 @@ const ReviewPage = () => {
           />
         </Form.Group>
         <Button type="submit" disabled={submitting}>
-          {submitting ? 'Submitting...' : 'Submit Review'}
+          {submitting ? '제출 중...' : '리뷰 제출'}
         </Button>
       </Form>
     </div>
