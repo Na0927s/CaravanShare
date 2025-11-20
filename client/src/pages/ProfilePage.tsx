@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Button, Alert, Container } from 'react-bootstrap';
+import { Form, Button, Alert, Container, ListGroup } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 interface UserInfo {
@@ -10,6 +10,15 @@ interface UserInfo {
   contact?: string; // Optional contact information
 }
 
+interface Review {
+  id: string;
+  caravanId: string;
+  guestId: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
 const ProfilePage = () => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [name, setName] = useState('');
@@ -18,20 +27,43 @@ const ProfilePage = () => {
   const [role, setRole] = useState<'host' | 'guest'>('guest');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [userReviews, setUserReviews] = useState<Review[]>([]);
+  const [reviewsError, setReviewsError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const storedUserInfo = localStorage.getItem('userInfo');
+    let parsedUserInfo: UserInfo | null = null;
     if (storedUserInfo) {
-      const parsedUserInfo: UserInfo = JSON.parse(storedUserInfo);
+      parsedUserInfo = JSON.parse(storedUserInfo);
       setUserInfo(parsedUserInfo);
-      setName(parsedUserInfo.name);
-      setEmail(parsedUserInfo.email);
-      setContact(parsedUserInfo.contact || '');
-      setRole(parsedUserInfo.role);
+      if (parsedUserInfo) { // Add null check here
+        setName(parsedUserInfo.name);
+        setEmail(parsedUserInfo.email);
+        setContact(parsedUserInfo.contact || '');
+        setRole(parsedUserInfo.role);
+      }
     } else {
       // If no user info, redirect to login
       navigate('/login');
+      return;
+    }
+
+    const fetchUserReviews = async (userId: string) => {
+      try {
+        const response = await fetch(`http://localhost:3001/api/reviews/user/${userId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch user reviews.');
+        }
+        const data: Review[] = await response.json();
+        setUserReviews(data);
+      } catch (err: any) {
+        setReviewsError(err.message || 'Error fetching user reviews.');
+      }
+    };
+
+    if (parsedUserInfo?.id) {
+      fetchUserReviews(parsedUserInfo.id);
     }
   }, [navigate]);
 
@@ -132,6 +164,22 @@ const ProfilePage = () => {
           Update Profile
         </Button>
       </Form>
+
+      <h2 className="mt-5">My Reviews</h2>
+      {reviewsError && <Alert variant="danger">{reviewsError}</Alert>}
+      {userReviews.length === 0 ? (
+        <Alert variant="info">You haven't written any reviews yet.</Alert>
+      ) : (
+        <ListGroup className="mt-3">
+          {userReviews.map(review => (
+            <ListGroup.Item key={review.id}>
+              <h5>Rating: {review.rating}/5</h5>
+              <p>{review.comment}</p>
+              <small className="text-muted">Reviewed on: {new Date(review.createdAt).toLocaleDateString()}</small>
+            </ListGroup.Item>
+          ))}
+        </ListGroup>
+      )}
     </Container>
   );
 };

@@ -176,3 +176,18 @@ export const confirmPayment = async (req: Request, res: Response) => {
 
   res.json(reservations[reservationIndex]);
 };
+
+export const getPaymentHistory = async (req: Request, res: Response) => {
+  const { userId } = req.params; // Assuming userId is passed as a URL parameter
+
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
+
+  const reservations = await readReservations();
+  const paymentHistory = reservations.filter(
+    r => r.guestId === userId && r.status === 'confirmed'
+  );
+
+  res.json(paymentHistory);
+};

@@ -14,6 +14,7 @@ import PaymentPage from './pages/PaymentPage';
 import ReviewPage from './pages/ReviewPage';
 import CaravanDetailPage from './pages/CaravanDetailPage';
 import ProfilePage from './pages/ProfilePage'; // Import ProfilePage
+import PaymentHistoryPage from './pages/PaymentHistoryPage'; // Import PaymentHistoryPage
 import './App.css';
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
             <Route path="/payment/:id" element={<PaymentPage />} />
             <Route path="/review/:id" element={<ReviewPage />} />
             <Route path="/profile" element={<ProfilePage />} /> {/* Add ProfilePage route */}
+            <Route path="/payment-history" element={<PaymentHistoryPage />} /> {/* Add PaymentHistoryPage route */}
           </Routes>
         </Container>
       </main>

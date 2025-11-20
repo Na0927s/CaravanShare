@@ -57,3 +57,16 @@ export const getReviewsForCaravan = async (req: Request, res: Response) => {
   const caravanReviews = reviews.filter(r => r.caravanId === id);
   res.json(caravanReviews);
 };
+
+export const getReviewsByUserId = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
+
+  const reviews = await readReviews();
+  const userReviews = reviews.filter(r => r.guestId === userId);
+
+  res.json(userReviews);
+};

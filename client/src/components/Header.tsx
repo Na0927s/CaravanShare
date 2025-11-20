@@ -65,7 +65,10 @@ const Header = () => {
               <Nav.Link as={Link} to="/my-reservations">My Reservations</Nav.Link>
             )}
             {isLoggedIn && (
-              <Nav.Link as={Link} to="/profile">My Profile</Nav.Link>
+              <>
+                <Nav.Link as={Link} to="/profile">My Profile</Nav.Link>
+                <Nav.Link as={Link} to="/payment-history">Payment History</Nav.Link>
+              </>
             )}
           </Nav>
           <Nav>
