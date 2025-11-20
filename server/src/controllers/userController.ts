@@ -80,3 +80,50 @@ export const login = async (req: Request, res: Response) => {
   // In a real application, generate and send a JWT token
   res.status(200).json({ message: 'Login successful', user: { id: user.id, email: user.email, name: user.name, role: user.role } });
 };
+
+export const getUserById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
+
+  const users = await readUsers();
+  const user = users.find(u => u.id === id);
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  // Exclude sensitive information like password_hash
+  const { password_hash, ...userInfo } = user;
+  res.status(200).json(userInfo);
+};
+
+export const updateUser = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { name, contact } = req.body; // Only allow name and contact to be updated via this endpoint
+
+  if (!id) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
+
+  const users = await readUsers();
+  const userIndex = users.findIndex(u => u.id === id);
+
+  if (userIndex === -1) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const user = users[userIndex];
+  
+  if (name !== undefined) user.name = name;
+  if (contact !== undefined) user.contact = contact;
+
+  users[userIndex] = user;
+  await writeUsers(users);
+
+  // Exclude sensitive information like password_hash
+  const { password_hash, ...updatedUserInfo } = user;
+  res.status(200).json({ message: 'User updated successfully', user: updatedUserInfo });
+};

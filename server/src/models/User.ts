@@ -5,4 +5,5 @@ export interface User {
   name: string;
   role: 'host' | 'guest';
   createdAt: string;
+  contact?: string; // Optional contact information
 }

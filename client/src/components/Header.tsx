@@ -57,12 +57,15 @@ const Header = () => {
             <Nav.Link as={Link} to="/caravans">Caravans</Nav.Link>
             {isLoggedIn && userInfo?.role === 'host' && (
               <>
-                <Nav.Link as={Link} to="/register-caravan">Register Caravan</Nav.Link>
+                <Nav.Link as={Link} to="/caravans/new">Register Caravan</Nav.Link>
                 <Nav.Link as={Link} to="/host-dashboard">Host Dashboard</Nav.Link>
               </>
             )}
             {isLoggedIn && userInfo?.role === 'guest' && (
               <Nav.Link as={Link} to="/my-reservations">My Reservations</Nav.Link>
+            )}
+            {isLoggedIn && (
+              <Nav.Link as={Link} to="/profile">My Profile</Nav.Link>
             )}
           </Nav>
           <Nav>

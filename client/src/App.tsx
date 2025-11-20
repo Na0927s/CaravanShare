@@ -13,6 +13,7 @@ import HostDashboardPage from './pages/HostDashboardPage';
 import PaymentPage from './pages/PaymentPage';
 import ReviewPage from './pages/ReviewPage';
 import CaravanDetailPage from './pages/CaravanDetailPage';
+import ProfilePage from './pages/ProfilePage'; // Import ProfilePage
 import './App.css';
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
             <Route path="/host-dashboard" element={<HostDashboardPage />} />
             <Route path="/payment/:id" element={<PaymentPage />} />
             <Route path="/review/:id" element={<ReviewPage />} />
+            <Route path="/profile" element={<ProfilePage />} /> {/* Add ProfilePage route */}
           </Routes>
         </Container>
       </main>
