@@ -4,19 +4,8 @@ import { Link } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import CaravanCard from '../components/CaravanCard';
-
-interface Caravan {
-  id: string;
-  name: string;
-  description: string;
-  capacity: number;
-  amenities: string[];
-  location: string;
-  pricePerDay: number;
-  imageUrl: string;
-  hostId: string;
-  status: 'available' | 'reserved' | 'maintenance'; // Add status field
-}
+import useFetch from '../hooks/useFetch';
+import { Caravan } from '../models/Caravan';
 
 interface UserInfo {
   id: string;
@@ -26,38 +15,20 @@ interface UserInfo {
 }
 
 const CaravansPage = () => {
-  const [caravans, setCaravans] = useState<Caravan[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: caravans, loading, error, refetch } = useFetch<Caravan[]>('/caravans');
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedCaravanId, setSelectedCaravanId] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [reservationError, setReservationError] = useState<string | null>(null);
+  const [generalError, setGeneralError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCaravans = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/api/caravans');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: Caravan[] = await response.json();
-        setCaravans(data);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     const storedUserInfo = localStorage.getItem('userInfo');
     if (storedUserInfo) {
       setUserInfo(JSON.parse(storedUserInfo));
     }
-
-    fetchCaravans();
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -75,9 +46,9 @@ const CaravansPage = () => {
         throw new Error(data.message || 'Failed to delete caravan');
       }
 
-      setCaravans(caravans.filter(c => c.id !== id));
+      refetch(); // Refetch the caravan list after deletion
     } catch (err: any) {
-      setError(err.message);
+      setGeneralError(err.message);
     }
   };
 
@@ -129,19 +100,20 @@ const CaravansPage = () => {
 
       handleCloseModal();
       alert('Reservation created successfully!');
+      refetch(); // Refetch to update caravan status if it changes
     } catch (err: any) {
       setReservationError(err.message || 'Network error');
     }
   };
 
   // Filter caravans based on user role
-  const filteredCaravans = caravans.filter(caravan => {
+  const filteredCaravans = caravans?.filter(caravan => {
     if (userInfo?.role === 'guest') {
       return caravan.status === 'available';
     }
-    // Hosts will see all caravans, regardless of status
+    // Hosts will see all their caravans, guests only see available ones.
     return true;
-  });
+  }) || [];
 
 
   if (loading) {
@@ -150,7 +122,8 @@ const CaravansPage = () => {
 
   return (
     <div className="container mt-4">
-      {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
+      {error && <Alert variant="danger">Error fetching data: {error.message}</Alert>}
+      {generalError && <Alert variant="danger" onClose={() => setGeneralError(null)} dismissible>{generalError}</Alert>}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>Available Caravans</h1>
         {userInfo && userInfo.role === 'host' && (

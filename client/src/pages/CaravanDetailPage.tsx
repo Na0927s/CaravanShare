@@ -1,81 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, ListGroup, Spinner, Alert } from 'react-bootstrap';
-
-interface Caravan {
-  id: string;
-  name: string;
-  description: string;
-  capacity: number;
-  amenities: string[];
-  location: string;
-  pricePerDay: number;
-  imageUrl: string;
-  hostId: string;
-}
-
-interface Review {
-  id: string;
-  rating: number;
-  comment: string;
-  guestId: string;
-  createdAt: string;
-}
-
-interface User {
-  id: string;
-  name: string;
-  trustScore: number;
-}
+import useFetch from '../hooks/useFetch';
+import { Caravan } from '../models/Caravan';
+import { Review } from '../models/Review';
+import { User } from '../models/User';
 
 const CaravanDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [caravan, setCaravan] = useState<Caravan | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [host, setHost] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchCaravanDetails = async () => {
-      try {
-        const caravanRes = await fetch(`http://localhost:3001/api/caravans/${id}`);
-        if (!caravanRes.ok) throw new Error('Caravan not found');
-        const caravanData = await caravanRes.json();
-        setCaravan(caravanData);
+  const { data: caravan, loading: loadingCaravan, error: errorCaravan } = useFetch<Caravan>(`/caravans/${id}`);
+  const { data: reviews, loading: loadingReviews, error: errorReviews } = useFetch<Review[]>(`/caravans/${id}/reviews`);
+  
+  // Fetch host only when caravan data is available
+  const { data: host, loading: loadingHost, error: errorHost } = useFetch<User>(
+    caravan ? `/users/${caravan.hostId}` : null
+  );
 
-        if (caravanData.hostId) {
-          const hostRes = await fetch(`http://localhost:3001/api/users/${caravanData.hostId}`);
-          if (hostRes.ok) {
-            const hostData = await hostRes.json();
-            setHost(hostData);
-          }
-        }
-
-        const reviewsRes = await fetch(`http://localhost:3001/api/caravans/${id}/reviews`);
-        if (!reviewsRes.ok) throw new Error('Could not fetch reviews');
-        const reviewsData = await reviewsRes.json();
-        setReviews(reviewsData);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCaravanDetails();
-  }, [id]);
-
-  const averageRating = reviews.length > 0
+  const averageRating = reviews && reviews.length > 0
     ? (reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length).toFixed(1)
     : 'No reviews yet';
 
-  if (loading) {
+  if (loadingCaravan || loadingReviews) {
     return <Spinner animation="border" />;
   }
 
-  if (error) {
-    return <Alert variant="danger">{error}</Alert>;
+  const pageError = errorCaravan || errorReviews || errorHost;
+  if (pageError) {
+    return <Alert variant="danger">{pageError.message}</Alert>;
   }
 
   if (!caravan) {
@@ -95,7 +47,7 @@ const CaravanDetailPage = () => {
             <ListGroup.Item>Amenities: {caravan.amenities.join(', ')}</ListGroup.Item>
             <ListGroup.Item>Price: {caravan.pricePerDay.toLocaleString()} KRW / day</ListGroup.Item>
             <ListGroup.Item>
-              Host: {host ? `${host.name} (Trust Score: ${host.trustScore})` : 'Loading...'}
+              Host: {loadingHost ? 'Loading...' : (host ? `${host.name} (Trust Score: ${host.trustScore})` : 'N/A')}
             </ListGroup.Item>
             <ListGroup.Item><strong>Average Rating: {averageRating}</strong></ListGroup.Item>
           </ListGroup>
@@ -104,7 +56,7 @@ const CaravanDetailPage = () => {
 
       <div className="mt-4">
         <h3>Reviews</h3>
-        {reviews.length > 0 ? (
+        {reviews && reviews.length > 0 ? (
           <ListGroup>
             {reviews.map(review => (
               <ListGroup.Item key={review.id}>
