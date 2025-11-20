@@ -1,36 +1,17 @@
 import { Request, Response } from 'express';
-import path from 'path';
-import fs from 'fs/promises';
 import { Caravan } from '../models/Caravan';
 import { v4 as uuidv4 } from 'uuid';
+import { readData, writeData } from '../db/utils';
 
-const dbPath = path.join(__dirname, '..', '..', 'db', 'caravans.json');
-
-const readCaravans = async (): Promise<Caravan[]> => {
-  try {
-    const data = await fs.readFile(dbPath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading caravans:', error);
-    return [];
-  }
-};
-
-const writeCaravans = async (caravans: Caravan[]): Promise<void> => {
-  try {
-    await fs.writeFile(dbPath, JSON.stringify(caravans, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing caravans:', error);
-  }
-};
+const CARAVANS_FILE = 'caravans.json';
 
 export const getCaravans = async (req: Request, res: Response) => {
-  const caravans = await readCaravans();
+  const caravans = await readData<Caravan>(CARAVANS_FILE);
   res.json(caravans);
 };
 
 export const getCaravanById = async (req: Request, res: Response) => {
-  const caravans = await readCaravans();
+  const caravans = await readData<Caravan>(CARAVANS_FILE);
   const caravan = caravans.find(c => c.id === req.params.id);
   if (caravan) {
     res.json(caravan);
@@ -63,9 +44,9 @@ export const createCaravan = async (req: Request, res: Response) => {
     status: status || 'available', // Set default status
   };
 
-  const caravans = await readCaravans();
+  const caravans = await readData<Caravan>(CARAVANS_FILE);
   caravans.push(newCaravan);
-  await writeCaravans(caravans);
+  await writeData<Caravan>(CARAVANS_FILE, caravans);
 
   res.status(201).json(newCaravan);
 };
@@ -78,7 +59,7 @@ export const updateCaravan = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Invalid status provided' });
   }
 
-  const caravans = await readCaravans();
+  const caravans = await readData<Caravan>(CARAVANS_FILE);
   const caravanIndex = caravans.findIndex(c => c.id === id);
 
   if (caravanIndex === -1) {
@@ -91,14 +72,14 @@ export const updateCaravan = async (req: Request, res: Response) => {
   const updatedCaravan = { ...originalCaravan, ...req.body };
   caravans[caravanIndex] = updatedCaravan;
 
-  await writeCaravans(caravans);
+  await writeData<Caravan>(CARAVANS_FILE, caravans);
 
   res.status(200).json(updatedCaravan);
 };
 
 export const deleteCaravan = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const caravans = await readCaravans();
+  const caravans = await readData<Caravan>(CARAVANS_FILE);
   const caravanIndex = caravans.findIndex(c => c.id === id);
 
   if (caravanIndex === -1) {
@@ -112,7 +93,7 @@ export const deleteCaravan = async (req: Request, res: Response) => {
   // }
 
   caravans.splice(caravanIndex, 1);
-  await writeCaravans(caravans);
+  await writeData<Caravan>(CARAVANS_FILE, caravans);
 
   res.status(200).json({ message: 'Caravan deleted successfully' });
 };

@@ -1,41 +1,12 @@
 import { Request, Response } from 'express';
-import path from 'path';
-import fs from 'fs/promises';
 import { Review } from '../models/Review';
 import { v4 as uuidv4 } from 'uuid';
 import { updateTrustScore } from './userController';
 import { Caravan } from '../models/Caravan';
+import { readData, writeData } from '../db/utils';
 
-const reviewsDbPath = path.join(__dirname, '..', '..', 'db', 'reviews.json');
-const caravansDbPath = path.join(__dirname, '..', '..', 'db', 'caravans.json');
-
-const readReviews = async (): Promise<Review[]> => {
-  try {
-    const data = await fs.readFile(reviewsDbPath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading reviews:', error);
-    return [];
-  }
-};
-
-const writeReviews = async (reviews: Review[]): Promise<void> => {
-  try {
-    await fs.writeFile(reviewsDbPath, JSON.stringify(reviews, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing reviews:', error);
-  }
-};
-
-const readCaravans = async (): Promise<Caravan[]> => {
-  try {
-    const data = await fs.readFile(caravansDbPath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading caravans:', error);
-    return [];
-  }
-};
+const REVIEWS_FILE = 'reviews.json';
+const CARAVANS_FILE = 'caravans.json';
 
 export const createReview = async (req: Request, res: Response) => {
   const { caravanId, guestId, rating, comment } = req.body;
@@ -57,16 +28,16 @@ export const createReview = async (req: Request, res: Response) => {
     createdAt: new Date().toISOString(),
   };
 
-  const reviews = await readReviews();
+  const reviews = await readData<Review>(REVIEWS_FILE);
   reviews.push(newReview);
-  await writeReviews(reviews);
+  await writeData<Review>(REVIEWS_FILE, reviews);
 
   // Update trust scores
   // 1. Guest gets points for writing a review
   await updateTrustScore(guestId, 5);
 
   // 2. Host gets points based on the rating
-  const caravans = await readCaravans();
+  const caravans = await readData<Caravan>(CARAVANS_FILE);
   const caravan = caravans.find(c => c.id === caravanId);
   if (caravan) {
     if (rating === 5) {
@@ -81,7 +52,7 @@ export const createReview = async (req: Request, res: Response) => {
 
 export const getReviewsForCaravan = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const reviews = await readReviews();
+  const reviews = await readData<Review>(REVIEWS_FILE);
   const caravanReviews = reviews.filter(r => r.caravanId === id);
   res.json(caravanReviews);
 };
@@ -93,7 +64,7 @@ export const getReviewsByUserId = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'User ID is required' });
   }
 
-  const reviews = await readReviews();
+  const reviews = await readData<Review>(REVIEWS_FILE);
   const userReviews = reviews.filter(r => r.guestId === userId);
 
   res.json(userReviews);

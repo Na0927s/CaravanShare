@@ -1,37 +1,18 @@
 import { Request, Response } from 'express';
-import path from 'path';
-import fs from 'fs/promises';
 import { User } from '../models/User';
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
+import { readData, writeData } from '../db/utils';
 
-const dbPath = path.join(__dirname, '..', '..', 'db', 'users.json');
-
-const readUsers = async (): Promise<User[]> => {
-  try {
-    const data = await fs.readFile(dbPath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading users:', error);
-    return [];
-  }
-};
-
-const writeUsers = async (users: User[]): Promise<void> => {
-  try {
-    await fs.writeFile(dbPath, JSON.stringify(users, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing users:', error);
-  }
-};
+const USERS_FILE = 'users.json';
 
 // This function will be called by other controllers
 export const updateTrustScore = async (userId: string, points: number) => {
-  const users = await readUsers();
+  const users = await readData<User>(USERS_FILE);
   const userIndex = users.findIndex(u => u.id === userId);
 
   if (userIndex !== -1) {
     users[userIndex].trustScore = (users[userIndex].trustScore || 0) + points;
-    await writeUsers(users);
+    await writeData<User>(USERS_FILE, users);
   }
 };
 
@@ -42,7 +23,7 @@ export const signup = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
-  const users = await readUsers();
+  const users = await readData<User>(USERS_FILE);
 
   if (users.some(user => user.email === email)) {
     return res.status(409).json({ message: 'User with this email already exists' });
@@ -62,7 +43,7 @@ export const signup = async (req: Request, res: Response) => {
   };
 
   users.push(newUser);
-  await writeUsers(users);
+  await writeData<User>(USERS_FILE, users);
 
   // In a real application, you might generate a JWT token here
   res.status(201).json({ message: 'User registered successfully', user: { id: newUser.id, email: newUser.email, name: newUser.name, role: newUser.role } });
@@ -75,7 +56,7 @@ export const login = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Email and password are required' });
   }
 
-  const users = await readUsers();
+  const users = await readData<User>(USERS_FILE);
   const user = users.find(u => u.email === email);
 
   if (!user) {
@@ -100,7 +81,7 @@ export const getUserById = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'User ID is required' });
   }
 
-  const users = await readUsers();
+  const users = await readData<User>(USERS_FILE);
   const user = users.find(u => u.id === id);
 
   if (!user) {
@@ -120,7 +101,7 @@ export const updateUser = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'User ID is required' });
   }
 
-  const users = await readUsers();
+  const users = await readData<User>(USERS_FILE);
   const userIndex = users.findIndex(u => u.id === id);
 
   if (userIndex === -1) {
@@ -133,7 +114,7 @@ export const updateUser = async (req: Request, res: Response) => {
   if (contact !== undefined) user.contact = contact;
 
   users[userIndex] = user;
-  await writeUsers(users);
+  await writeData<User>(USERS_FILE, users);
 
   // Exclude sensitive information like password_hash
   const { password_hash, ...updatedUserInfo } = user;

@@ -1,41 +1,12 @@
 import { Request, Response } from 'express';
-import path from 'path';
-import fs from 'fs/promises';
 import { Reservation } from '../models/Reservation';
 import { Caravan } from '../models/Caravan';
 import { v4 as uuidv4 } from 'uuid';
 import { updateTrustScore } from './userController'; // Import the function
+import { readData, writeData } from '../db/utils';
 
-const reservationsDbPath = path.join(__dirname, '..', '..', 'db', 'reservations.json');
-const caravansDbPath = path.join(__dirname, '..', '..', 'db', 'caravans.json');
-
-const readReservations = async (): Promise<Reservation[]> => {
-  try {
-    const data = await fs.readFile(reservationsDbPath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading reservations:', error);
-    return [];
-  }
-};
-
-const writeReservations = async (reservations: Reservation[]): Promise<void> => {
-  try {
-    await fs.writeFile(reservationsDbPath, JSON.stringify(reservations, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing reservations:', error);
-  }
-};
-
-const readCaravans = async (): Promise<Caravan[]> => {
-  try {
-    const data = await fs.readFile(caravansDbPath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading caravans:', error);
-    return [];
-  }
-};
+const RESERVATIONS_FILE = 'reservations.json';
+const CARAVANS_FILE = 'caravans.json';
 
 export const createReservation = async (req: Request, res: Response) => {
   const { caravanId, guestId, startDate, endDate } = req.body;
@@ -44,14 +15,14 @@ export const createReservation = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
-  const caravans = await readCaravans();
+  const caravans = await readData<Caravan>(CARAVANS_FILE);
   const caravan = caravans.find(c => c.id === caravanId);
 
   if (!caravan) {
     return res.status(404).json({ message: 'Caravan not found' });
   }
 
-  const reservations = await readReservations();
+  const reservations = await readData<Reservation>(RESERVATIONS_FILE);
 
   // Check for overlapping reservations
   const existingReservations = reservations.filter(
@@ -98,7 +69,7 @@ export const createReservation = async (req: Request, res: Response) => {
   };
 
   reservations.push(newReservation);
-  await writeReservations(reservations);
+  await writeData<Reservation>(RESERVATIONS_FILE, reservations);
 
   res.status(201).json(newReservation);
 };
@@ -111,7 +82,7 @@ export const getMyReservations = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Guest ID is required' });
   }
 
-  const reservations = await readReservations();
+  const reservations = await readData<Reservation>(RESERVATIONS_FILE);
   const myReservations = reservations.filter(r => r.guestId === guestId);
 
   res.json(myReservations);
@@ -124,10 +95,10 @@ export const getHostReservations = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Host ID is required' });
   }
 
-  const caravans = await readCaravans();
+  const caravans = await readData<Caravan>(CARAVANS_FILE);
   const hostCaravanIds = caravans.filter(c => c.hostId === hostId).map(c => c.id);
 
-  const reservations = await readReservations();
+  const reservations = await readData<Reservation>(RESERVATIONS_FILE);
   const hostReservations = reservations.filter(r => hostCaravanIds.includes(r.caravanId));
 
   res.json(hostReservations);
@@ -145,7 +116,7 @@ export const updateReservationStatus = async (req: Request, res: Response) => {
     status = 'awaiting_payment';
   }
 
-  const reservations = await readReservations();
+  const reservations = await readData<Reservation>(RESERVATIONS_FILE);
   const reservationIndex = reservations.findIndex(r => r.id === id);
 
   if (reservationIndex === -1) {
@@ -153,7 +124,7 @@ export const updateReservationStatus = async (req: Request, res: Response) => {
   }
 
   reservations[reservationIndex].status = status;
-  await writeReservations(reservations);
+  await writeData<Reservation>(RESERVATIONS_FILE, reservations);
 
   res.json(reservations[reservationIndex]);
 };
@@ -161,7 +132,7 @@ export const updateReservationStatus = async (req: Request, res: Response) => {
 export const confirmPayment = async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  const reservations = await readReservations();
+  const reservations = await readData<Reservation>(RESERVATIONS_FILE);
   const reservationIndex = reservations.findIndex(r => r.id === id);
 
   if (reservationIndex === -1) {
@@ -175,7 +146,7 @@ export const confirmPayment = async (req: Request, res: Response) => {
   }
 
   reservation.status = 'confirmed';
-  await writeReservations(reservations);
+  await writeData<Reservation>(RESERVATIONS_FILE, reservations);
 
   // Update guest's trust score for completing a reservation
   await updateTrustScore(reservation.guestId, 10);
@@ -190,7 +161,7 @@ export const getPaymentHistory = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'User ID is required' });
   }
 
-  const reservations = await readReservations();
+  const reservations = await readData<Reservation>(RESERVATIONS_FILE);
   const paymentHistory = reservations.filter(
     r => r.guestId === userId && r.status === 'confirmed'
   );
