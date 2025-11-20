@@ -1,68 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Table, Button } from 'react-bootstrap';
+import { Alert, Table, Button, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-
-interface Reservation {
-  id: string;
-  caravanId: string;
-  startDate: string;
-  endDate: string;
-  status: 'pending' | 'approved' | 'rejected' | 'awaiting_payment' | 'confirmed';
-  totalPrice: number;
-}
-
-interface UserInfo {
-  id: string;
-  name: string;
-  email: string;
-  role: 'host' | 'guest';
-}
+import useFetch from '../hooks/useFetch';
+import { Reservation } from '../models/Reservation';
+import { User } from '../models/User';
 
 const MyReservationsPage = () => {
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  const { data: reservations, loading, error } = useFetch<Reservation[]>(
+    userInfo ? `/reservations/my-reservations?guestId=${userInfo.id}` : null
+  );
 
   useEffect(() => {
     const storedUserInfo = localStorage.getItem('userInfo');
     if (storedUserInfo) {
-      const parsedInfo = JSON.parse(storedUserInfo);
-      setUserInfo(parsedInfo);
-      fetchReservations(parsedInfo.id);
+      setUserInfo(JSON.parse(storedUserInfo));
     } else {
-      setError("You must be logged in to view your reservations.");
-      setLoading(false);
+      setAuthError("You must be logged in to view your reservations.");
     }
   }, []);
 
-  const fetchReservations = async (guestId: string) => {
-    try {
-      const response = await fetch(`http://localhost:3001/api/reservations/my-reservations?guestId=${guestId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data: Reservation[] = await response.json();
-      setReservations(data);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (loading) {
-    return <div>Loading your reservations...</div>;
+    return <Spinner animation="border" />;
   }
+
+  const pageError = authError || error?.message;
 
   return (
     <div className="container mt-4">
       <h1>My Reservations</h1>
-      {error && <Alert variant="danger">{error}</Alert>}
-      {reservations.length === 0 && !error ? (
+      {pageError && <Alert variant="danger">{pageError}</Alert>}
+      {!pageError && reservations && reservations.length === 0 ? (
         <p>You have no reservations.</p>
-      ) : (
-        <Table striped bordered hover>
+      ) : !pageError && reservations ? (
+        <Table striped bordered hover responsive>
           <thead>
             <tr>
               <th>#</th>
@@ -78,7 +51,7 @@ const MyReservationsPage = () => {
             {reservations.map((reservation, index) => (
               <tr key={reservation.id}>
                 <td>{index + 1}</td>
-                <td>{reservation.caravanId}</td>
+                <td>{reservation.caravanId.substring(0, 8)}...</td>
                 <td>{new Date(reservation.startDate).toLocaleDateString()}</td>
                 <td>{new Date(reservation.endDate).toLocaleDateString()}</td>
                 <td>{reservation.totalPrice.toLocaleString()} KRW</td>
@@ -99,7 +72,7 @@ const MyReservationsPage = () => {
             ))}
           </tbody>
         </Table>
-      )}
+      ) : null}
     </div>
   );
 };

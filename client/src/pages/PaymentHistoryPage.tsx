@@ -1,37 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Alert, ListGroup, Card } from 'react-bootstrap';
+import { Container, Alert, ListGroup, Card, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-
-interface Reservation {
-  id: string;
-  caravanId: string;
-  guestId: string;
-  startDate: string;
-  endDate: string;
-  status: 'pending' | 'approved' | 'rejected' | 'awaiting_payment' | 'confirmed';
-  totalPrice: number;
-}
-
-interface Caravan {
-  id: string;
-  name: string;
-  imageUrl: string;
-}
-
-interface UserInfo {
-  id: string;
-  name: string;
-  email: string;
-  role: 'host' | 'guest';
-}
+import useFetch from '../hooks/useFetch';
+import { Reservation } from '../models/Reservation';
+import { Caravan } from '../models/Caravan';
+import { User } from '../models/User';
 
 const PaymentHistoryPage = () => {
-  const [paymentHistory, setPaymentHistory] = useState<Reservation[]>([]);
-  const [caravans, setCaravans] = useState<Caravan[]>([]); // To get caravan names and images
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
   const navigate = useNavigate();
+
+  const { data: paymentHistory, loading: loadingHistory, error: errorHistory } = useFetch<Reservation[]>(
+    userInfo ? `/reservations/payment-history/${userInfo.id}` : null
+  );
+  const { data: caravans, loading: loadingCaravans, error: errorCaravans } = useFetch<Caravan[]>('/caravans');
 
   useEffect(() => {
     const storedUserInfo = localStorage.getItem('userInfo');
@@ -39,87 +21,56 @@ const PaymentHistoryPage = () => {
       setUserInfo(JSON.parse(storedUserInfo));
     } else {
       navigate('/login');
-      return;
     }
-
-    const fetchPaymentHistory = async (userId: string) => {
-      try {
-        const response = await fetch(`http://localhost:3001/api/reservations/payment-history/${userId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch payment history.');
-        }
-        const data: Reservation[] = await response.json();
-        setPaymentHistory(data);
-      } catch (err: any) {
-        setError(err.message || 'Error fetching payment history.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchCaravans = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/api/caravans');
-        if (!response.ok) {
-          throw new Error('Failed to fetch caravan data.');
-        }
-        const data: Caravan[] = await response.json();
-        setCaravans(data);
-      } catch (err: any) {
-        console.error('Error fetching caravans:', err);
-        // Don't set error state for caravans, just log it
-      }
-    };
-
-    if (userInfo?.id) {
-      fetchPaymentHistory(userInfo.id);
-      fetchCaravans();
-    }
-  }, [userInfo, navigate]);
+  }, [navigate]);
 
   const getCaravanDetails = (caravanId: string) => {
-    return caravans.find(c => c.id === caravanId);
+    return caravans?.find(c => c.id === caravanId);
   };
 
-  if (loading) {
-    return <Container className="mt-5">Loading payment history...</Container>;
+  if (loadingHistory || loadingCaravans) {
+    return <Container className="mt-5"><Spinner animation="border" /></Container>;
   }
+
+  const pageError = errorHistory || errorCaravans;
 
   return (
     <Container className="mt-5">
       <h1>Payment History</h1>
-      {error && <Alert variant="danger">{error}</Alert>}
+      {pageError && <Alert variant="danger">{pageError.message}</Alert>}
 
-      {paymentHistory.length === 0 ? (
+      {paymentHistory && paymentHistory.length === 0 ? (
         <Alert variant="info">No payment history found.</Alert>
-      ) : (
+      ) : paymentHistory ? (
         <ListGroup>
           {paymentHistory.map((reservation) => {
             const caravan = getCaravanDetails(reservation.caravanId);
             return (
-              <ListGroup.Item key={reservation.id} className="mb-3">
+              <ListGroup.Item key={reservation.id} className="mb-3 border-0">
                 <Card>
-                  <Card.Body>
-                    <Card.Title>{caravan ? caravan.name : 'Unknown Caravan'}</Card.Title>
+                  <Card.Body className="d-flex">
                     {caravan?.imageUrl && (
-                      <Card.Img variant="top" src={caravan.imageUrl} style={{ height: '100px', objectFit: 'cover', marginBottom: '10px' }} />
+                      <img src={caravan.imageUrl} alt={caravan.name} style={{ width: '150px', height: '100px', objectFit: 'cover', marginRight: '20px' }} />
                     )}
-                    <Card.Text>
-                      <strong>Reservation ID:</strong> {reservation.id}
-                      <br />
-                      <strong>Dates:</strong> {reservation.startDate} to {reservation.endDate}
-                      <br />
-                      <strong>Total Price:</strong> {reservation.totalPrice.toLocaleString()} KRW
-                      <br />
-                      <strong>Status:</strong> {reservation.status}
-                    </Card.Text>
+                    <div>
+                      <Card.Title>{caravan ? caravan.name : 'Unknown Caravan'}</Card.Title>
+                      <Card.Text as="div">
+                        <small className="text-muted">
+                          <strong>Reservation ID:</strong> {reservation.id.substring(0,8)}...
+                          <br />
+                          <strong>Dates:</strong> {new Date(reservation.startDate).toLocaleDateString()} to {new Date(reservation.endDate).toLocaleDateString()}
+                          <br />
+                          <strong>Total Price:</strong> {reservation.totalPrice.toLocaleString()} KRW
+                        </small>
+                      </Card.Text>
+                    </div>
                   </Card.Body>
                 </Card>
               </ListGroup.Item>
             );
           })}
         </ListGroup>
-      )}
+      ) : null}
     </Container>
   );
 };

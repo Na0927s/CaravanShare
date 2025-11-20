@@ -1,61 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Table, Button } from 'react-bootstrap';
-
-interface Reservation {
-  id: string;
-  caravanId: string;
-  guestId: string;
-  startDate: string;
-  endDate: string;
-  status: 'pending' | 'approved' | 'rejected' | 'awaiting_payment' | 'confirmed';
-  totalPrice: number;
-}
-
-interface UserInfo {
-  id: string;
-  name: string;
-  email: string;
-  role: 'host' | 'guest';
-}
+import { Alert, Table, Button, Spinner } from 'react-bootstrap';
+import useFetch from '../hooks/useFetch';
+import { Reservation } from '../models/Reservation';
+import { User } from '../models/User';
 
 const HostDashboardPage = () => {
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
+  
+  // Conditionally fetch data only if the user is a host
+  const { data: reservations, loading, error, refetch } = useFetch<Reservation[]>(
+    (userInfo && userInfo.role === 'host') ? `/reservations/host-reservations?hostId=${userInfo.id}` : null
+  );
 
   useEffect(() => {
     const storedUserInfo = localStorage.getItem('userInfo');
     if (storedUserInfo) {
-      const parsedInfo = JSON.parse(storedUserInfo);
+      const parsedInfo: User = JSON.parse(storedUserInfo);
       if (parsedInfo.role === 'host') {
         setUserInfo(parsedInfo);
-        fetchHostReservations(parsedInfo.id);
       } else {
-        setError("You must be a host to view this page.");
-        setLoading(false);
+        setAuthError("You must be a host to view this page.");
       }
     } else {
-      setError("You must be logged in to view this page.");
-      setLoading(false);
+      setAuthError("You must be logged in to view this page.");
     }
   }, []);
-
-  const fetchHostReservations = async (hostId: string) => {
-    try {
-      // This endpoint needs to be created on the backend
-      const response = await fetch(`http://localhost:3001/api/reservations/host-reservations?hostId=${hostId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data: Reservation[] = await response.json();
-      setReservations(data);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleStatusUpdate = async (id: string, status: 'approved' | 'rejected') => {
     try {
@@ -71,26 +41,28 @@ const HostDashboardPage = () => {
         const data = await response.json();
         throw new Error(data.message || 'Failed to update reservation status');
       }
-
-      const updatedReservation = await response.json();
-      setReservations(reservations.map(r => r.id === id ? updatedReservation : r));
+      
+      refetch(); // Refetch data after successful update
     } catch (err: any) {
-      setError(err.message);
+      // Displaying the error from the status update action
+      setAuthError(err.message);
     }
   };
 
   if (loading) {
-    return <div>Loading host dashboard...</div>;
+    return <Spinner animation="border" />;
   }
+
+  const pageError = authError || error?.message;
 
   return (
     <div className="container mt-4">
       <h1>Host Dashboard</h1>
-      {error && <Alert variant="danger">{error}</Alert>}
-      {userInfo && reservations.length === 0 && !error ? (
+      {pageError && <Alert variant="danger">{pageError}</Alert>}
+      {!pageError && reservations && reservations.length === 0 ? (
         <p>You have no pending reservations for your caravans.</p>
-      ) : (
-        <Table striped bordered hover>
+      ) : !pageError && reservations ? (
+        <Table striped bordered hover responsive>
           <thead>
             <tr>
               <th>#</th>
@@ -107,8 +79,8 @@ const HostDashboardPage = () => {
             {reservations.map((reservation, index) => (
               <tr key={reservation.id}>
                 <td>{index + 1}</td>
-                <td>{reservation.caravanId}</td>
-                <td>{reservation.guestId}</td>
+                <td>{reservation.caravanId.substring(0, 8)}...</td>
+                <td>{reservation.guestId.substring(0, 8)}...</td>
                 <td>{new Date(reservation.startDate).toLocaleDateString()}</td>
                 <td>{new Date(reservation.endDate).toLocaleDateString()}</td>
                 <td>{reservation.totalPrice.toLocaleString()} KRW</td>
@@ -129,7 +101,7 @@ const HostDashboardPage = () => {
             ))}
           </tbody>
         </Table>
-      )}
+      ) : null}
     </div>
   );
 };

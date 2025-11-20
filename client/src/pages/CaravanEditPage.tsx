@@ -1,33 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Alert } from 'react-bootstrap';
+import { Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Caravan } from '../models/Caravan'; // Assuming a shared model definition
+import { Caravan } from '../models/Caravan';
+import useFetch from '../hooks/useFetch';
 
 const CaravanEditPage = () => {
   const { id } = useParams<{ id: string }>();
+  const { data: fetchedCaravan, loading, error: fetchError } = useFetch<Caravan>(`/caravans/${id}`);
+  
   const [caravan, setCaravan] = useState<Partial<Caravan>>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchCaravan = async () => {
-      try {
-        const response = await fetch(`http://localhost:3001/api/caravans/${id}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch caravan data.');
-        }
-        const data = await response.json();
-        setCaravan(data);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCaravan();
-  }, [id]);
+    if (fetchedCaravan) {
+      setCaravan(fetchedCaravan);
+    }
+  }, [fetchedCaravan]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -36,7 +26,7 @@ const CaravanEditPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setUpdateError(null);
     setSuccess(null);
 
     try {
@@ -58,16 +48,17 @@ const CaravanEditPage = () => {
         navigate('/caravans');
       }, 2000);
     } catch (err: any) {
-      setError(err.message);
+      setUpdateError(err.message);
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Spinner animation="border" />;
+  if (fetchError) return <Alert variant="danger">Error fetching data: {fetchError.message}</Alert>;
 
   return (
-    <div className="edit-container">
+    <div className="container mt-4">
       <h1>Edit Caravan</h1>
-      {error && <Alert variant="danger">{error}</Alert>}
+      {updateError && <Alert variant="danger">{updateError}</Alert>}
       {success && <Alert variant="success">{success}</Alert>}
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
@@ -94,12 +85,12 @@ const CaravanEditPage = () => {
           <Form.Label>Image URL</Form.Label>
           <Form.Control type="text" name="imageUrl" value={caravan.imageUrl || ''} onChange={handleChange} />
         </Form.Group>
-        {/* New Status Field */}
         <Form.Group className="mb-3">
           <Form.Label>Status</Form.Label>
           <Form.Control as="select" name="status" value={caravan.status || 'available'} onChange={handleChange}>
             <option value="available">Available</option>
             <option value="maintenance">Under Maintenance</option>
+            <option value="reserved">Reserved</option>
           </Form.Control>
         </Form.Group>
         <Button variant="primary" type="submit">
