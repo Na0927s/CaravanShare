@@ -8,6 +8,7 @@ interface UserInfo {
   email: string;
   role: 'host' | 'guest';
   contact?: string; // Optional contact information
+  trustScore: number; // Add trustScore
 }
 
 interface Review {
@@ -111,6 +112,11 @@ const ProfilePage = () => {
   return (
     <Container className="mt-5">
       <h1>My Profile</h1>
+      {userInfo.trustScore !== undefined && (
+        <Alert variant="info">
+          Your Trust Score: {userInfo.trustScore}
+        </Alert>
+      )}
       {error && <Alert variant="danger">{error}</Alert>}
       {success && <Alert variant="success">{success}</Alert>}
       <Form onSubmit={handleUpdateProfile}>

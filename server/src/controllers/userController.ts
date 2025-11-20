@@ -24,6 +24,17 @@ const writeUsers = async (users: User[]): Promise<void> => {
   }
 };
 
+// This function will be called by other controllers
+export const updateTrustScore = async (userId: string, points: number) => {
+  const users = await readUsers();
+  const userIndex = users.findIndex(u => u.id === userId);
+
+  if (userIndex !== -1) {
+    users[userIndex].trustScore = (users[userIndex].trustScore || 0) + points;
+    await writeUsers(users);
+  }
+};
+
 export const signup = async (req: Request, res: Response) => {
   const { email, password, name, role } = req.body;
 
@@ -47,6 +58,7 @@ export const signup = async (req: Request, res: Response) => {
     name,
     role,
     createdAt: new Date().toISOString(),
+    trustScore: 0, // Initialize trust score
   };
 
   users.push(newUser);
@@ -78,7 +90,7 @@ export const login = async (req: Request, res: Response) => {
   }
 
   // In a real application, generate and send a JWT token
-  res.status(200).json({ message: 'Login successful', user: { id: user.id, email: user.email, name: user.name, role: user.role } });
+  res.status(200).json({ message: 'Login successful', user: { id: user.id, email: user.email, name: user.name, role: user.role, trustScore: user.trustScore || 0 } });
 };
 
 export const getUserById = async (req: Request, res: Response) => {

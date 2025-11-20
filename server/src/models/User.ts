@@ -6,4 +6,5 @@ export interface User {
   role: 'host' | 'guest';
   createdAt: string;
   contact?: string; // Optional contact information
+  trustScore: number; // Add trustScore field
 }

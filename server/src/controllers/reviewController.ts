@@ -3,8 +3,11 @@ import path from 'path';
 import fs from 'fs/promises';
 import { Review } from '../models/Review';
 import { v4 as uuidv4 } from 'uuid';
+import { updateTrustScore } from './userController';
+import { Caravan } from '../models/Caravan';
 
 const reviewsDbPath = path.join(__dirname, '..', '..', 'db', 'reviews.json');
+const caravansDbPath = path.join(__dirname, '..', '..', 'db', 'caravans.json');
 
 const readReviews = async (): Promise<Review[]> => {
   try {
@@ -21,6 +24,16 @@ const writeReviews = async (reviews: Review[]): Promise<void> => {
     await fs.writeFile(reviewsDbPath, JSON.stringify(reviews, null, 2), 'utf-8');
   } catch (error) {
     console.error('Error writing reviews:', error);
+  }
+};
+
+const readCaravans = async (): Promise<Caravan[]> => {
+  try {
+    const data = await fs.readFile(caravansDbPath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading caravans:', error);
+    return [];
   }
 };
 
@@ -47,6 +60,21 @@ export const createReview = async (req: Request, res: Response) => {
   const reviews = await readReviews();
   reviews.push(newReview);
   await writeReviews(reviews);
+
+  // Update trust scores
+  // 1. Guest gets points for writing a review
+  await updateTrustScore(guestId, 5);
+
+  // 2. Host gets points based on the rating
+  const caravans = await readCaravans();
+  const caravan = caravans.find(c => c.id === caravanId);
+  if (caravan) {
+    if (rating === 5) {
+      await updateTrustScore(caravan.hostId, 15);
+    } else if (rating === 1) {
+      await updateTrustScore(caravan.hostId, -10);
+    }
+  }
 
   res.status(201).json(newReview);
 };

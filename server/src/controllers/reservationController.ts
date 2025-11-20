@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import { Reservation } from '../models/Reservation';
 import { Caravan } from '../models/Caravan';
 import { v4 as uuidv4 } from 'uuid';
+import { updateTrustScore } from './userController'; // Import the function
 
 const reservationsDbPath = path.join(__dirname, '..', '..', 'db', 'reservations.json');
 const caravansDbPath = path.join(__dirname, '..', '..', 'db', 'caravans.json');
@@ -167,14 +168,19 @@ export const confirmPayment = async (req: Request, res: Response) => {
     return res.status(404).json({ message: 'Reservation not found' });
   }
 
-  if (reservations[reservationIndex].status !== 'awaiting_payment') {
+  const reservation = reservations[reservationIndex];
+
+  if (reservation.status !== 'awaiting_payment') {
     return res.status(400).json({ message: 'Reservation is not awaiting payment' });
   }
 
-  reservations[reservationIndex].status = 'confirmed';
+  reservation.status = 'confirmed';
   await writeReservations(reservations);
 
-  res.json(reservations[reservationIndex]);
+  // Update guest's trust score for completing a reservation
+  await updateTrustScore(reservation.guestId, 10);
+
+  res.json(reservation);
 };
 
 export const getPaymentHistory = async (req: Request, res: Response) => {

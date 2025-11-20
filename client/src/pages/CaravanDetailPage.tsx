@@ -22,10 +22,17 @@ interface Review {
   createdAt: string;
 }
 
+interface User {
+  id: string;
+  name: string;
+  trustScore: number;
+}
+
 const CaravanDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [caravan, setCaravan] = useState<Caravan | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [host, setHost] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +43,14 @@ const CaravanDetailPage = () => {
         if (!caravanRes.ok) throw new Error('Caravan not found');
         const caravanData = await caravanRes.json();
         setCaravan(caravanData);
+
+        if (caravanData.hostId) {
+          const hostRes = await fetch(`http://localhost:3001/api/users/${caravanData.hostId}`);
+          if (hostRes.ok) {
+            const hostData = await hostRes.json();
+            setHost(hostData);
+          }
+        }
 
         const reviewsRes = await fetch(`http://localhost:3001/api/caravans/${id}/reviews`);
         if (!reviewsRes.ok) throw new Error('Could not fetch reviews');
@@ -79,6 +94,9 @@ const CaravanDetailPage = () => {
             <ListGroup.Item>Location: {caravan.location}</ListGroup.Item>
             <ListGroup.Item>Amenities: {caravan.amenities.join(', ')}</ListGroup.Item>
             <ListGroup.Item>Price: {caravan.pricePerDay.toLocaleString()} KRW / day</ListGroup.Item>
+            <ListGroup.Item>
+              Host: {host ? `${host.name} (Trust Score: ${host.trustScore})` : 'Loading...'}
+            </ListGroup.Item>
             <ListGroup.Item><strong>Average Rating: {averageRating}</strong></ListGroup.Item>
           </ListGroup>
         </Card.Body>
