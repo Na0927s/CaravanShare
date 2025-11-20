@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Row, Button, Alert, Modal, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import CaravanCard from '../components/CaravanCard';
 
 interface Caravan {
@@ -29,8 +31,8 @@ const CaravansPage = () => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedCaravanId, setSelectedCaravanId] = useState<string | null>(null);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [reservationError, setReservationError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -86,8 +88,8 @@ const CaravansPage = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedCaravanId(null);
-    setStartDate('');
-    setEndDate('');
+    setStartDate(null);
+    setEndDate(null);
     setReservationError(null);
   };
 
@@ -95,10 +97,13 @@ const CaravansPage = () => {
     e.preventDefault();
     setReservationError(null);
 
-    if (!selectedCaravanId || !userInfo) {
-      setReservationError('Cannot process reservation.');
+    if (!selectedCaravanId || !userInfo || !startDate || !endDate) {
+      setReservationError('Please select both start and end dates.');
       return;
     }
+
+    const formattedStartDate = startDate.toISOString().split('T')[0];
+    const formattedEndDate = endDate.toISOString().split('T')[0];
 
     try {
       const response = await fetch('http://localhost:3001/api/reservations', {
@@ -109,8 +114,8 @@ const CaravansPage = () => {
         body: JSON.stringify({
           caravanId: selectedCaravanId,
           guestId: userInfo.id,
-          startDate,
-          endDate,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
         }),
       });
 
@@ -171,11 +176,31 @@ const CaravansPage = () => {
           <Form onSubmit={handleReservationSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>Start Date</Form.Label>
-              <Form.Control type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+              <DatePicker
+                selected={startDate}
+                onChange={(date: Date | null) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                minDate={new Date()} // Cannot select past dates
+                dateFormat="yyyy-MM-dd"
+                className="form-control" // Apply Bootstrap styling
+                required
+              />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>End Date</Form.Label>
-              <Form.Control type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
+              <DatePicker
+                selected={endDate}
+                onChange={(date: Date | null) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate || new Date()} // End date cannot be before start date
+                dateFormat="yyyy-MM-dd"
+                className="form-control" // Apply Bootstrap styling
+                required
+              />
             </Form.Group>
             <Button variant="primary" type="submit">
               Submit Reservation

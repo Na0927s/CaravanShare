@@ -50,6 +50,32 @@ export const createReservation = async (req: Request, res: Response) => {
     return res.status(404).json({ message: 'Caravan not found' });
   }
 
+  const reservations = await readReservations();
+
+  // Check for overlapping reservations
+  const existingReservations = reservations.filter(
+    r =>
+      r.caravanId === caravanId &&
+      (r.status === 'confirmed' || r.status === 'pending' || r.status === 'awaiting_payment')
+  );
+
+  const newStart = new Date(startDate);
+  const newEnd = new Date(endDate);
+
+  const isOverlapping = existingReservations.some(r => {
+    const existingStart = new Date(r.startDate);
+    const existingEnd = new Date(r.endDate);
+
+    // Check for overlap. The new reservation cannot start or end inside an existing one.
+    // Also, an existing reservation cannot start or end inside the new one.
+    return (newStart < existingEnd && newEnd > existingStart);
+  });
+
+  if (isOverlapping) {
+    return res.status(400).json({ message: 'The selected dates are not available for this caravan.' });
+  }
+
+
   const start = new Date(startDate);
   const end = new Date(endDate);
   const durationInDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
@@ -70,7 +96,6 @@ export const createReservation = async (req: Request, res: Response) => {
     totalPrice,
   };
 
-  const reservations = await readReservations();
   reservations.push(newReservation);
   await writeReservations(reservations);
 
