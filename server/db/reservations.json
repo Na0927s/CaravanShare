@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "9172ddc0-ff3b-4374-8b1d-e163567af5bb",
+    "caravanId": "f4836c0e-f2d1-4d38-8780-08ad2a2a54a7",
+    "guestId": "f1f463e0-dd00-4287-9fc2-b1826df1b47d",
+    "startDate": "2025-11-22",
+    "endDate": "2025-11-23",
+    "status": "awaiting_payment",
+    "totalPrice": 50000
+  }
+]

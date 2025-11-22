@@ -2,7 +2,7 @@
   {
     "id": "4ba924a1-9f6b-4330-b8dc-d19f53c104e3",
     "email": "mj46534379@gmail.com",
-    "password_hash": "hashed_12345",
+    "password_hash": "$2b$10$jZn0BE2LXXHFQ9.6uUR8WeNO.7HTe0kQC6JsEgVtfcEH93BYTULce",
     "name": "나민주",
     "role": "host",
     "createdAt": "2025-11-14T04:46:51.551Z",
@@ -16,5 +16,14 @@
     "role": "guest",
     "createdAt": "2025-11-20T06:27:07.310Z",
     "trustScore": 15
+  },
+  {
+    "id": "f1f463e0-dd00-4287-9fc2-b1826df1b47d",
+    "email": "mj4379@naver.com",
+    "password_hash": "$2b$10$jZn0BE2LXXHFQ9.6uUR8WeNO.7HTe0kQC6JsEgVtfcEH93BYTULce",
+    "name": "손님",
+    "role": "guest",
+    "createdAt": "2025-11-22T02:31:03.977Z",
+    "trustScore": 0
   }
 ]

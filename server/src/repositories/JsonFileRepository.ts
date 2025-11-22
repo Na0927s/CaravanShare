@@ -4,8 +4,8 @@ export class JsonFileRepository<T extends { id: string }> {
   protected filePath: string;
 
   constructor(fileName: string) {
-    // Assuming db files are directly in server/src/db for simplicity
-    this.filePath = `db/${fileName}`;
+    // Corrected: just use the fileName, db/utils handles the dbDirectory path
+    this.filePath = fileName;
   }
 
   protected async getAll(): Promise<T[]> {
