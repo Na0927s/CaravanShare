@@ -6,7 +6,8 @@ import { PaymentRepository } from '../repositories/PaymentRepository';
 import { UserService } from '../services/UserService';
 import { PaymentService } from '../services/PaymentService';
 import { ReservationService } from '../services/ReservationService';
-import { ReservationValidator } from '../services/ReservationValidator'; // Import ReservationValidator
+import { ReservationValidator } from '../services/ReservationValidator';
+import { ReservationFactory } from '../services/ReservationFactory'; // Import ReservationFactory
 import { AppError } from '../exceptions';
 
 // Instantiate repositories and services
@@ -17,14 +18,16 @@ const caravanRepository = new CaravanRepository();
 const reservationRepository = new ReservationRepository();
 const paymentRepository = new PaymentRepository();
 const paymentService = new PaymentService(paymentRepository, reservationRepository);
-const reservationValidator = new ReservationValidator(reservationRepository); // Instantiate ReservationValidator
+const reservationValidator = new ReservationValidator(reservationRepository);
+const reservationFactory = new ReservationFactory(); // Instantiate ReservationFactory
 
 const reservationService = new ReservationService(
   reservationRepository,
   caravanRepository,
   userService,
   paymentService,
-  reservationValidator // Inject reservationValidator
+  reservationValidator,
+  reservationFactory // Inject reservationFactory
 );
 
 export const createReservation = async (req: Request, res: Response) => {

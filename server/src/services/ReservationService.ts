@@ -3,7 +3,8 @@ import { ReservationRepository } from '../repositories/ReservationRepository';
 import { CaravanRepository } from '../repositories/CaravanRepository';
 import { UserService } from './UserService';
 import { PaymentService } from './PaymentService';
-import { ReservationValidator } from './ReservationValidator'; // Import ReservationValidator
+import { ReservationValidator } from './ReservationValidator';
+import { ReservationFactory } from './ReservationFactory'; // Import ReservationFactory
 import { BadRequestError, NotFoundError, ConflictError } from '../exceptions/index';
 import { Payment } from '../models/Payment';
 
@@ -12,20 +13,23 @@ export class ReservationService {
   private caravanRepository: CaravanRepository;
   private userService: UserService;
   private paymentService: PaymentService;
-  private reservationValidator: ReservationValidator; // Add ReservationValidator
+  private reservationValidator: ReservationValidator;
+  private reservationFactory: ReservationFactory; // Add ReservationFactory
 
   constructor(
     reservationRepository: ReservationRepository,
     caravanRepository: CaravanRepository,
     userService: UserService,
     paymentService: PaymentService,
-    reservationValidator: ReservationValidator // Inject ReservationValidator
+    reservationValidator: ReservationValidator,
+    reservationFactory: ReservationFactory // Inject ReservationFactory
   ) {
     this.reservationRepository = reservationRepository;
     this.caravanRepository = caravanRepository;
     this.userService = userService;
     this.paymentService = paymentService;
-    this.reservationValidator = reservationValidator; // Assign
+    this.reservationValidator = reservationValidator;
+    this.reservationFactory = reservationFactory; // Assign
   }
 
   async createReservation(
@@ -59,15 +63,15 @@ export class ReservationService {
     );
     const totalPrice = durationInDays * caravan.pricePerDay;
 
-    const newReservation: Reservation = {
-      id: crypto.randomUUID(),
+    // Use ReservationFactory to create the newReservation object
+    const newReservation = this.reservationFactory.createReservation(
       caravanId,
       guestId,
       startDate,
       endDate,
-      status: 'pending', // Initial status
       totalPrice,
-    };
+      'pending' // Initial status
+    );
 
     return this.reservationRepository.create(newReservation);
   }
