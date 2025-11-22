@@ -1,13 +1,14 @@
-import { Review } from '../models/Review';
+import { Review } from '../entities/Review'; // Import the TypeORM Review entity
+import { Caravan } from '../entities/Caravan'; // Import the TypeORM Caravan entity
 import { ReviewRepository } from '../repositories/ReviewRepository';
-import { CaravanRepository } from '../repositories/CaravanRepository'; // To get hostId from caravan
-import { UserService } from './UserService'; // To update trust scores
+import { CaravanRepository } from '../repositories/CaravanRepository';
+import { UserService } from './UserService';
 import { BadRequestError, NotFoundError } from '../exceptions/index';
 
 export class ReviewService {
   private reviewRepository: ReviewRepository;
   private caravanRepository: CaravanRepository;
-  private userService: UserService; // Dependency Injection
+  private userService: UserService;
 
   constructor(
     reviewRepository: ReviewRepository,
@@ -19,40 +20,36 @@ export class ReviewService {
     this.userService = userService;
   }
 
-  async createReview(reviewData: Omit<Review, 'id' | 'createdAt'>): Promise<Review> {
-    const { caravanId, guestId, rating, comment } = reviewData;
+  async createReview(reviewData: Omit<Review, 'id' | 'created_at' | 'updated_at' | 'caravan' | 'guest'>): Promise<Review> {
+    const { caravan_id, guest_id, rating, comment } = reviewData; // Use caravan_id, guest_id
 
-    if (!caravanId || !guestId || !rating || !comment) {
-      throw new BadRequestError('Missing required fields');
+    if (!caravan_id || !guest_id || !rating) { // comment can be optional
+      throw new BadRequestError('Missing required fields (caravan_id, guest_id, rating)');
     }
 
     if (rating < 1 || rating > 5) {
       throw new BadRequestError('Rating must be between 1 and 5');
     }
 
-    const newReview: Review = {
-      id: crypto.randomUUID(),
-      caravanId,
-      guestId,
+    const newReview = await this.reviewRepository.create({
+      caravan_id,
+      guest_id,
       rating,
-      comment,
-      createdAt: new Date().toISOString(),
-    };
-
-    const createdReview = await this.reviewRepository.create(newReview);
+      comment: comment || undefined,
+    });
 
     // Update guest's trust score for writing a review
-    await this.userService.recordReviewGiven(guestId);
+    await this.userService.recordReviewGiven(guest_id); // Use guest_id
 
     // Update host's trust score based on the rating
-    const caravan = await this.caravanRepository.findById(caravanId);
+    const caravan = await this.caravanRepository.findById(caravan_id);
     if (caravan) {
-      await this.userService.recordHostRating(caravan.hostId, rating);
+      await this.userService.recordHostRating(caravan.host_id, rating); // Use caravan.host_id
     } else {
-      console.warn(`Caravan with ID ${caravanId} not found when updating host trust score for review.`);
+      console.warn(`Caravan with ID ${caravan_id} not found when updating host trust score for review.`);
     }
     
-    return createdReview;
+    return newReview;
   }
 
   async getReviewsForCaravan(caravanId: string): Promise<Review[]> {

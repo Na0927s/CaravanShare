@@ -4,11 +4,11 @@ import { Card, Button, Alert, Spinner } from 'react-bootstrap';
 
 interface Reservation {
   id: string;
-  caravanId: string;
-  startDate: string;
-  endDate: string;
+  caravan_id: string; // Changed to snake_case
+  start_date: string; // Changed to snake_case
+  end_date: string;   // Changed to snake_case
   status: 'pending' | 'approved' | 'rejected' | 'awaiting_payment' | 'confirmed';
-  totalPrice: number;
+  total_price: number; // Changed to snake_case
 }
 
 const PaymentPage = () => {
@@ -94,13 +94,13 @@ const PaymentPage = () => {
             <strong>예약 ID:</strong> {reservation.id}
           </Card.Text>
           <Card.Text>
-            <strong>카라반 ID:</strong> {reservation.caravanId}
+            <strong>카라반 ID:</strong> {reservation.caravan_id} {/* Changed caravanId to caravan_id */}
           </Card.Text>
           <Card.Text>
-            <strong>날짜:</strong> {new Date(reservation.startDate).toLocaleDateString()} - {new Date(reservation.endDate).toLocaleDateString()}
+            <strong>날짜:</strong> {new Date(reservation.start_date).toLocaleDateString()} - {new Date(reservation.end_date).toLocaleDateString()} {/* Changed startDate and endDate */}
           </Card.Text>
           <Card.Title>
-            총 금액: {reservation.totalPrice.toLocaleString()} 원
+            총 금액: {reservation.total_price.toLocaleString()} 원 {/* Changed totalPrice to total_price */}
           </Card.Title>
           {reservation.status === 'awaiting_payment' ? (
             <Button onClick={handleConfirmPayment} disabled={paying}>

@@ -9,14 +9,14 @@ const userService = new UserService(userRepository);
 
 export const signup = async (req: Request, res: Response) => {
   try {
-    const { email, password, name, role } = req.body;
-    const newUser = await userService.signup({ email, password, name, role });
+    const { email, password, name, role, contact } = req.body;
+    const newUser = await userService.signup({ email, password, name, role, contact });
     res.status(201).json({ message: 'User registered successfully', user: newUser });
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    console.error(error); // Log unexpected errors
+    console.error(error instanceof Error ? error.stack : error); // Safely log error stack
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -30,7 +30,7 @@ export const login = async (req: Request, res: Response) => {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    console.error(error); // Log unexpected errors
+    console.error(error instanceof Error ? error.stack : error); // Safely log error stack
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -44,7 +44,7 @@ export const getUserById = async (req: Request, res: Response) => {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    console.error(error); // Log unexpected errors
+    console.error(error instanceof Error ? error.stack : error); // Safely log error stack
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -59,7 +59,7 @@ export const updateUser = async (req: Request, res: Response) => {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
     }
-    console.error(error); // Log unexpected errors
+    console.error(error instanceof Error ? error.stack : error); // Safely log error stack
     res.status(500).json({ message: 'Internal server error' });
   }
 };

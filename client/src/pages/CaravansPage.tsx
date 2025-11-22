@@ -68,6 +68,7 @@ const CaravansPage = () => {
       return;
     }
 
+    console.log("Selected Caravan ID before submit:", selectedCaravanId); // Debug log
     const formattedStartDate = startDate.toISOString().split('T')[0];
     const formattedEndDate = endDate.toISOString().split('T')[0];
 
@@ -78,10 +79,10 @@ const CaravansPage = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          caravanId: selectedCaravanId,
-          guestId: userInfo.id,
-          startDate: formattedStartDate,
-          endDate: formattedEndDate,
+          caravan_id: selectedCaravanId, // Changed to snake_case
+          guest_id: userInfo.id,         // Changed to snake_case
+          start_date: formattedStartDate, // Changed to snake_case
+          end_date: formattedEndDate,     // Changed to snake_case
         }),
       });
 

@@ -38,12 +38,12 @@ const reservationService = new ReservationService(
 
 export const createReservation = async (req: Request, res: Response) => {
   try {
-    const { caravanId, guestId, startDate, endDate } = req.body;
+    const { caravan_id, guest_id, start_date, end_date } = req.body;
     const newReservation = await reservationService.createReservation({
-      caravanId,
-      guestId,
-      startDate,
-      endDate,
+      caravan_id,
+      guest_id,
+      start_date,
+      end_date,
     });
     res.status(201).json(newReservation);
   } catch (error) {

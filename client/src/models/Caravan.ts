@@ -1,12 +1,12 @@
 export interface Caravan {
   id: string;
-  hostId: string;
+  host_id: string; // Changed to snake_case
   name: string;
   description: string;
   location: string;
-  pricePerDay: number;
+  price_per_day: number; // Changed to snake_case
   capacity: number;
   amenities: string[];
-  imageUrl: string;
+  image_url: string; // Changed to snake_case
   status: 'available' | 'reserved' | 'maintenance'; // Add status field
 }

@@ -49,7 +49,7 @@ const CaravanRegistrationPage = () => {
       return;
     }
 
-    const hostId = userInfo.id;
+    const host_id = userInfo.id; // Changed to snake_case
 
     try {
       const response = await fetch('http://localhost:3001/api/caravans', {
@@ -57,16 +57,16 @@ const CaravanRegistrationPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          name, 
-          description, 
-          capacity, 
-          location, 
-          pricePerDay, 
-          imageUrl, 
-          hostId,
+        body: JSON.stringify({
+          name,
+          description,
+          capacity,
+          location,
+          price_per_day: pricePerDay, // Changed to snake_case
+          image_url: imageUrl,     // Changed to snake_case
+          host_id,                 // Changed to snake_case
           amenities: amenities.split(',').map(item => item.trim()),
-          status, // Include status in the payload
+          status,
         }),
       });
 
@@ -145,4 +145,3 @@ const CaravanRegistrationPage = () => {
 };
 
 export default CaravanRegistrationPage;
-

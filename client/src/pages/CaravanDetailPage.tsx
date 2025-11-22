@@ -14,7 +14,7 @@ const CaravanDetailPage = () => {
   
   // Fetch host only when caravan data is available
   const { data: host, loading: loadingHost, error: errorHost } = useFetch<User>(
-    caravan ? `/users/${caravan.hostId}` : null
+    caravan ? `/users/${caravan.host_id}` : null // Changed from hostId to host_id
   );
 
   const averageRating = reviews && reviews.length > 0
@@ -37,7 +37,7 @@ const CaravanDetailPage = () => {
   return (
     <div className="container mt-4">
       <Card>
-        <Card.Img variant="top" src={caravan.imageUrl} alt={caravan.name} style={{ maxHeight: '400px', objectFit: 'cover' }} />
+        <Card.Img variant="top" src={caravan.image_url} alt={caravan.name} style={{ maxHeight: '400px', objectFit: 'cover' }} /> {/* Changed from imageUrl to image_url */}
         <Card.Body>
           <Card.Title as="h2">{caravan.name}</Card.Title>
           <Card.Text>{caravan.description}</Card.Text>
@@ -45,9 +45,9 @@ const CaravanDetailPage = () => {
             <ListGroup.Item>수용 인원: {caravan.capacity}명</ListGroup.Item>
             <ListGroup.Item>위치: {caravan.location}</ListGroup.Item>
             <ListGroup.Item>편의시설: {caravan.amenities.join(', ')}</ListGroup.Item>
-            <ListGroup.Item>가격: {caravan.pricePerDay.toLocaleString()}원 / 1일</ListGroup.Item>
+            <ListGroup.Item>가격: {caravan.price_per_day.toLocaleString()}원 / 1일</ListGroup.Item> {/* Changed from pricePerDay to price_per_day */}
             <ListGroup.Item>
-              호스트: {loadingHost ? '로딩 중...' : (host ? `${host.name} (신뢰도 점수: ${host.trustScore})` : '정보 없음')}
+              호스트: {loadingHost ? '로딩 중...' : (host ? `${host.name} (신뢰도 점수: ${host.trustScore})` : '정보 없음')} {/* Changed host.trust_score to host.trustScore */}
             </ListGroup.Item>
             <ListGroup.Item><strong>평균 평점: {averageRating}</strong></ListGroup.Item>
           </ListGroup>
@@ -62,7 +62,7 @@ const CaravanDetailPage = () => {
               <ListGroup.Item key={review.id}>
                 <h5>평점: {review.rating}/5</h5>
                 <p>{review.comment}</p>
-                <small className="text-muted">작성자: 게스트 {review.guestId.substring(0, 8)}... | 작성일: {new Date(review.createdAt).toLocaleDateString()}</small>
+                <small className="text-muted">작성자: 게스트 {review.guest_id.substring(0, 8)}... | 작성일: {new Date(review.created_at).toLocaleDateString()}</small> {/* Changed guestId to guest_id and createdAt to created_at */}
               </ListGroup.Item>
             ))}
           </ListGroup>

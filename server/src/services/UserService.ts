@@ -1,7 +1,7 @@
-import { User } from '../models/User';
+import { User } from '../entities/User'; // Import the TypeORM User entity
 import { UserRepository } from '../repositories/UserRepository';
-import { BadRequestError, NotFoundError, ConflictError } from '../exceptions/index'; // Assuming an index file will export all exceptions
-import { hash, compare } from 'bcryptjs'; // For password hashing
+import { BadRequestError, NotFoundError, ConflictError } from '../exceptions/index';
+import { hash, compare } from 'bcryptjs';
 
 // Constants
 const TRUST_SCORE_REVIEW_POINTS = 5;
@@ -16,10 +16,10 @@ export class UserService {
     this.userRepository = userRepository;
   }
 
-  async signup(userData: Omit<User, 'id' | 'createdAt' | 'password_hash' | 'trustScore'> & { password: string }): Promise<Omit<User, 'password_hash'>> {
-    const { email, password, name, role } = userData;
+  async signup(userData: Omit<User, 'id' | 'created_at' | 'updated_at' | 'password_hash' | 'trust_score' | 'caravans' | 'reservations' | 'reviews'> & { password: string }): Promise<Omit<User, 'password_hash' | 'caravans' | 'reservations' | 'reviews'>> {
+    const { email, password, name, role, contact } = userData; // Added contact here
 
-    if (!email || !password || !name || !role) {
+    if (!email || !password || !name || !role || !contact) { // Added contact validation
       throw new BadRequestError('All fields are required');
     }
 
@@ -28,45 +28,42 @@ export class UserService {
       throw new ConflictError('User with this email already exists');
     }
 
-    // Hash password
-    const password_hash = await hash(password, 10); // Hash with salt rounds = 10
+    const password_hash = await hash(password, 10);
 
-    const newUser: User = {
-      id: crypto.randomUUID(), // Use Web Crypto API for UUID
+    const newUser = await this.userRepository.create({
       email,
       password_hash,
       name,
       role,
-      createdAt: new Date().toISOString(),
-      trustScore: 0,
-    };
+      contact, // Include contact
+      trust_score: 0, // Initialize trust_score
+    });
 
-    await this.userRepository.create(newUser);
-
-    const { password_hash: _, ...userWithoutPassword } = newUser;
-    return userWithoutPassword;
+    // Remove password_hash and relations before returning
+    const { password_hash: _, caravans: __, reservations: ___, reviews: ____, ...userWithoutPasswordAndRelations } = newUser;
+    return userWithoutPasswordAndRelations;
   }
 
-  async login(email: string, password: string): Promise<Omit<User, 'password_hash'>> {
+  async login(email: string, password: string): Promise<Omit<User, 'password_hash' | 'caravans' | 'reservations' | 'reviews'>> {
     if (!email || !password) {
       throw new BadRequestError('Email and password are required');
     }
 
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      throw new NotFoundError('Invalid credentials'); // Use generic message for security
+      throw new NotFoundError('Invalid credentials');
     }
 
     const isPasswordValid = await compare(password, user.password_hash);
     if (!isPasswordValid) {
-      throw new NotFoundError('Invalid credentials'); // Use generic message for security
+      throw new NotFoundError('Invalid credentials');
     }
 
-    const { password_hash: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    const { password_hash: _, caravans: __, reservations: ___, reviews: ____, ...userWithoutPasswordAndRelations } = user;
+    return userWithoutPasswordAndRelations;
   }
 
-  async getUserById(id: string): Promise<Omit<User, 'password_hash'>> {
+  async getUserById(id: string): Promise<Omit<User, 'password_hash' | 'caravans' | 'reservations' | 'reviews'>> {
     if (!id) {
       throw new BadRequestError('User ID is required');
     }
@@ -76,11 +73,11 @@ export class UserService {
       throw new NotFoundError('User not found');
     }
 
-    const { password_hash: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    const { password_hash: _, caravans: __, reservations: ___, reviews: ____, ...userWithoutPasswordAndRelations } = user;
+    return userWithoutPasswordAndRelations;
   }
 
-  async updateUser(id: string, updateData: Partial<Pick<User, 'name' | 'contact'>>): Promise<Omit<User, 'password_hash'>> {
+  async updateUser(id: string, updateData: Partial<Pick<User, 'name' | 'contact'>>): Promise<Omit<User, 'password_hash' | 'caravans' | 'reservations' | 'reviews'>> {
     if (!id) {
       throw new BadRequestError('User ID is required');
     }
@@ -90,12 +87,13 @@ export class UserService {
       throw new NotFoundError('User not found');
     }
 
-    // Apply updates
-    const updatedUser = { ...user, ...updateData };
-    await this.userRepository.update(id, updatedUser);
+    const updatedUser = await this.userRepository.update(id, updateData);
+    if (!updatedUser) {
+        throw new Error('Failed to update user'); // Should not happen if findById found user
+    }
 
-    const { password_hash: _, ...userWithoutPassword } = updatedUser;
-    return userWithoutPassword;
+    const { password_hash: _, caravans: __, reservations: ___, reviews: ____, ...userWithoutPasswordAndRelations } = updatedUser;
+    return userWithoutPasswordAndRelations;
   }
 
   async updateTrustScore(userId: string, points: number): Promise<void> {
@@ -108,11 +106,10 @@ export class UserService {
       throw new NotFoundError('User not found for trust score update');
     }
 
-    const newTrustScore = (user.trustScore || 0) + points;
-    await this.userRepository.update(userId, { trustScore: newTrustScore });
+    const newTrustScore = (user.trust_score || 0) + points; // Use user.trust_score
+    await this.userRepository.update(userId, { trust_score: newTrustScore }); // Use trust_score
   }
 
-  // Helper methods to update trust score based on specific events
   async recordReviewGiven(guestId: string): Promise<void> {
     await this.updateTrustScore(guestId, TRUST_SCORE_REVIEW_POINTS);
   }

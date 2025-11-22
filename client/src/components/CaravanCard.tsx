@@ -11,7 +11,7 @@ interface CaravanCardProps {
 }
 
 const CaravanCard: React.FC<CaravanCardProps> = ({ caravan, currentUserId, onDelete, onReserve }) => {
-  const isOwner = caravan.hostId === currentUserId;
+  const isOwner = caravan.host_id === currentUserId; // Changed from hostId to host_id
 
   const getStatusText = (status: 'available' | 'reserved' | 'maintenance') => {
     switch (status) {
@@ -28,7 +28,7 @@ const CaravanCard: React.FC<CaravanCardProps> = ({ caravan, currentUserId, onDel
 
   return (
     <Card className="h-100">
-      <Card.Img variant="top" src={caravan.imageUrl} alt={caravan.name} style={{ height: '200px', objectFit: 'cover' }} />
+      <Card.Img variant="top" src={caravan.image_url} alt={caravan.name} style={{ height: '200px', objectFit: 'cover' }} /> {/* Changed from imageUrl to image_url */}
       <Card.Body className="d-flex flex-column">
         <Card.Title>{caravan.name}</Card.Title>
         <Card.Text as="div">
@@ -37,7 +37,7 @@ const CaravanCard: React.FC<CaravanCardProps> = ({ caravan, currentUserId, onDel
             <strong>수용 인원:</strong> {caravan.capacity}명
           </div>
           <div>
-            <strong>가격:</strong> {caravan.pricePerDay.toLocaleString()}원/1일
+            <strong>가격:</strong> {caravan.price_per_day.toLocaleString()}원/1일 {/* Changed from pricePerDay to price_per_day */}
           </div>
           <div>
             <strong>상태:</strong> {getStatusText(caravan.status)}

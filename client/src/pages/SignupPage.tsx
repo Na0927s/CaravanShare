@@ -6,6 +6,7 @@ const SignupPage = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [contact, setContact] = useState(''); // Added contact state
   const [role, setRole] = useState<'host' | 'guest'>('guest'); // Default to guest
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -23,7 +24,7 @@ const SignupPage = () => {
           'Content-Type': 'application/json',
         },
       
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify({ name, email, password, role, contact }), // Included contact
       });
 
       const data = await response.json();
@@ -77,6 +78,17 @@ const SignupPage = () => {
             placeholder="비밀번호"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="formBasicContact">
+          <Form.Label>연락처</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="연락처를 입력하세요"
+            value={contact}
+            onChange={(e) => setContact(e.target.value)}
             required
           />
         </Form.Group>

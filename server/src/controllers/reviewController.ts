@@ -15,8 +15,8 @@ const reviewService = new ReviewService(reviewRepository, caravanRepository, use
 
 export const createReview = async (req: Request, res: Response) => {
   try {
-    const { caravanId, guestId, rating, comment } = req.body;
-    const newReview = await reviewService.createReview({ caravanId, guestId, rating, comment });
+    const { caravan_id, guest_id, rating, comment } = req.body; // Changed caravanId to caravan_id, guestId to guest_id
+    const newReview = await reviewService.createReview({ caravan_id, guest_id, rating, comment }); // Changed caravanId to caravan_id, guestId to guest_id
     res.status(201).json(newReview);
   } catch (error) {
     if (error instanceof AppError) {

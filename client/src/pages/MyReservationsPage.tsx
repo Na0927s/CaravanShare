@@ -70,10 +70,10 @@ const MyReservationsPage = () => {
             {reservations.map((reservation, index) => (
               <tr key={reservation.id}>
                 <td>{index + 1}</td>
-                <td>{reservation.caravanId.substring(0, 8)}...</td>
-                <td>{new Date(reservation.startDate).toLocaleDateString()}</td>
-                <td>{new Date(reservation.endDate).toLocaleDateString()}</td>
-                <td>{reservation.totalPrice.toLocaleString()} 원</td>
+                <td>{reservation.caravan_id.substring(0, 8)}...</td> {/* Changed caravanId to caravan_id */}
+                <td>{new Date(reservation.start_date).toLocaleDateString()}</td> {/* Changed startDate to start_date */}
+                <td>{new Date(reservation.end_date).toLocaleDateString()}</td> {/* Changed endDate to end_date */}
+                <td>{reservation.total_price.toLocaleString()} 원</td> {/* Changed totalPrice to total_price */}
                 <td>{getStatusText(reservation.status)}</td>
                 <td>
                   {reservation.status === 'awaiting_payment' && (
@@ -82,7 +82,7 @@ const MyReservationsPage = () => {
                     </Link>
                   )}
                   {reservation.status === 'confirmed' && (
-                    <Link to={`/review/${reservation.caravanId}`}>
+                    <Link to={`/review/${reservation.caravan_id}`}> {/* Changed caravanId to caravan_id */}
                       <Button variant="info" size="sm">리뷰 작성</Button>
                     </Link>
                   )}

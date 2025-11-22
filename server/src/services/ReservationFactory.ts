@@ -1,22 +1,28 @@
-import { Reservation } from '../models/Reservation';
+import { Reservation } from '../entities/Reservation'; // Use the TypeORM entity for correct property names
 
 export class ReservationFactory {
   createReservation(
-    caravanId: string,
-    guestId: string,
-    startDate: string,
-    endDate: string,
-    totalPrice: number,
+    caravan_id: string,
+    guest_id: string,
+    startDateString: string,
+    endDateString: string,
+    total_price: number,
     status: Reservation['status'] = 'pending'
-  ): Reservation {
+  ): Partial<Reservation> { // Changed return type to Partial<Reservation>
+    const start_date = new Date(startDateString);
+    const end_date = new Date(endDateString);
+
     return {
       id: crypto.randomUUID(),
-      caravanId,
-      guestId,
-      startDate,
-      endDate,
+      caravan_id,
+      guest_id,
+      start_date,
+      end_date,
       status,
-      totalPrice,
+      total_price,
+      created_at: new Date(), // Explicitly set creation date
+      updated_at: new Date(), // Explicitly set update date
+      // Omit 'caravan', 'guest', 'payment' as they are relations typically managed by TypeORM or set after creation
     };
   }
 }

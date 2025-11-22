@@ -144,7 +144,7 @@ const ProfilePage = () => {
             <ListGroup.Item key={review.id}>
               <h5>평점: {review.rating}/5</h5>
               <p>{review.comment}</p>
-              <small className="text-muted">작성일: {new Date(review.createdAt).toLocaleDateString()}</small>
+              <small className="text-muted">작성일: {new Date(review.created_at).toLocaleDateString()}</small> {/* Changed createdAt to created_at */}
             </ListGroup.Item>
           ))}
         </ListGroup>

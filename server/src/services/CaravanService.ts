@@ -1,4 +1,4 @@
-import { Caravan } from '../models/Caravan';
+import { Caravan } from '../entities/Caravan'; // Import the TypeORM Caravan entity
 import { CaravanRepository } from '../repositories/CaravanRepository';
 import { BadRequestError, NotFoundError } from '../exceptions/index';
 
@@ -24,30 +24,29 @@ export class CaravanService {
     return caravan;
   }
 
-  async createCaravan(caravanData: Omit<Caravan, 'id' | 'status' | 'imageUrl'> & { imageUrl?: string; status?: 'available' | 'reserved' | 'maintenance' }): Promise<Caravan> {
-    const { name, description, capacity, location, pricePerDay, hostId, status } = caravanData;
+  async createCaravan(caravanData: Omit<Caravan, 'id' | 'status' | 'image_url' | 'created_at' | 'updated_at' | 'host' | 'reservations' | 'reviews'> & { image_url?: string; status?: 'available' | 'reserved' | 'maintenance' }): Promise<Caravan> {
+    const { name, description, capacity, location, price_per_day, host_id, status } = caravanData; // Use price_per_day, host_id
 
-    if (!name || !description || !capacity || !location || !pricePerDay || !hostId) {
+    if (!name || !description || !capacity || !location || !price_per_day || !host_id) {
       throw new BadRequestError('Missing required fields');
     }
     if (status && !['available', 'reserved', 'maintenance'].includes(status)) {
       throw new BadRequestError('Invalid status provided');
     }
 
-    const newCaravan: Caravan = {
-      id: crypto.randomUUID(),
+    const newCaravan = await this.caravanRepository.create({
       name,
       description,
       capacity,
       amenities: caravanData.amenities || [],
       location,
-      pricePerDay,
-      imageUrl: caravanData.imageUrl || `https://via.placeholder.com/300x200.png?text=${name.replace(/\s/g, '+')}`,
-      hostId,
+      price_per_day,
+      image_url: caravanData.image_url || `https://via.placeholder.com/300x200.png?text=${name.replace(/\s/g, '+')}`,
+      host_id,
       status: status || 'available',
-    };
+    });
 
-    return this.caravanRepository.create(newCaravan);
+    return newCaravan;
   }
 
   async updateCaravan(id: string, updateData: Partial<Caravan>): Promise<Caravan> {
@@ -64,11 +63,8 @@ export class CaravanService {
       throw new NotFoundError('Caravan not found');
     }
 
-    // In a real app, you might also add logic here to verify ownership (hostId === currentUser.id)
-    // before allowing the update.
-
     const updatedCaravan = await this.caravanRepository.update(id, updateData);
-    if (!updatedCaravan) { // This should ideally not happen if findById passed
+    if (!updatedCaravan) {
         throw new NotFoundError('Caravan not found after update attempt');
     }
     return updatedCaravan;
@@ -84,16 +80,13 @@ export class CaravanService {
       throw new NotFoundError('Caravan not found');
     }
 
-    // In a real app, verify ownership here.
-
     const deleted = await this.caravanRepository.delete(id);
-    if (!deleted) { // This indicates an issue if findById found it but delete didn't
-        throw new Error('Failed to delete caravan'); // More specific error if possible
+    if (!deleted) {
+        throw new Error('Failed to delete caravan');
     }
   }
 
   async getCaravansByHostId(hostId: string): Promise<Caravan[]> {
-    const allCaravans = await this.caravanRepository.findAll();
-    return allCaravans.filter(c => c.hostId === hostId);
+    return this.caravanRepository.findByHostId(hostId); // Use new findByHostId
   }
 }

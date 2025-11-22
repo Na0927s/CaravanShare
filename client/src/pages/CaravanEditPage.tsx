@@ -79,11 +79,11 @@ const CaravanEditPage = () => {
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>일일 요금 (원)</Form.Label>
-          <Form.Control type="number" name="pricePerDay" value={caravan.pricePerDay || 0} onChange={handleChange} required />
+          <Form.Control type="number" name="price_per_day" value={caravan.price_per_day || 0} onChange={handleChange} required />
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>이미지 URL</Form.Label>
-          <Form.Control type="text" name="imageUrl" value={caravan.imageUrl || ''} onChange={handleChange} />
+          <Form.Control type="text" name="image_url" value={caravan.image_url || ''} onChange={handleChange} />
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>상태</Form.Label>

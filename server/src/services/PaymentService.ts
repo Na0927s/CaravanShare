@@ -1,8 +1,9 @@
-import { Payment } from '../models/Payment';
-import { Reservation } from '../models/Reservation';
+import { Payment } from '../entities/Payment'; // Import the TypeORM Payment entity
+import { Reservation } from '../entities/Reservation'; // Import the TypeORM Reservation entity
 import { PaymentRepository } from '../repositories/PaymentRepository';
 import { ReservationRepository } from '../repositories/ReservationRepository';
 import { BadRequestError, NotFoundError, ConflictError } from '../exceptions';
+import { In } from 'typeorm'; // Import In operator
 
 export class PaymentService {
   private paymentRepository: PaymentRepository;
@@ -30,20 +31,19 @@ export class PaymentService {
       throw new BadRequestError('Payment can only be processed for reservations awaiting payment.');
     }
 
-    // Simulate payment processing
-    const newPayment: Payment = {
-      id: crypto.randomUUID(),
-      reservationId: reservation.id,
-      amount: reservation.totalPrice,
-      paymentDate: new Date().toISOString(),
+    // Create new payment using TypeORM entity properties
+    const newPayment = await this.paymentRepository.create({
+      reservation_id: reservation.id, // Use reservation.id
+      amount: reservation.total_price, // Use reservation.total_price
       status: 'completed', // Simulate successful payment
-      transactionId: `txn_${crypto.randomUUID()}`,
-    };
-
-    await this.paymentRepository.create(newPayment);
+      transaction_id: `txn_${crypto.randomUUID()}`, // Use transaction_id
+    });
 
     // Update reservation status to confirmed
-    await this.reservationRepository.update(reservation.id, { status: 'confirmed' });
+    const updatedReservation = await this.reservationRepository.update(reservation.id, { status: 'confirmed' });
+    if (!updatedReservation) {
+      throw new Error('Failed to update reservation status to confirmed after payment.');
+    }
 
     return newPayment;
   }
@@ -63,15 +63,19 @@ export class PaymentService {
     if (!userId) {
       throw new BadRequestError('User ID is required.');
     }
-    // This requires fetching all reservations for the user, then finding related payments.
-    // This might be inefficient for large datasets and a proper DB query would be better.
-    // For JSON file based, we fetch all reservations then filter.
+
+    // Leverage TypeORM relations for efficiency
+    // Find all reservations for the user
     const userReservations = await this.reservationRepository.findByGuestId(userId);
+
+    // Extract reservation IDs
     const userReservationIds = userReservations.map(res => res.id);
 
-    const allPayments = await this.paymentRepository.findAll();
-    const userPayments = allPayments.filter(payment => userReservationIds.includes(payment.reservationId));
-    
-    return userPayments;
+    if (userReservationIds.length === 0) {
+      return []; // No reservations, no payments
+    }
+
+    // Find payments associated with these reservation IDs using the new method
+    return this.paymentRepository.findByReservationIds(userReservationIds);
   }
 }
