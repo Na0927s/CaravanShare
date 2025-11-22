@@ -2,10 +2,11 @@ import { Request, Response } from 'express';
 import { ReservationRepository } from '../repositories/ReservationRepository';
 import { CaravanRepository } from '../repositories/CaravanRepository';
 import { UserRepository } from '../repositories/UserRepository';
-import { PaymentRepository } from '../repositories/PaymentRepository'; // Import PaymentRepository
+import { PaymentRepository } from '../repositories/PaymentRepository';
 import { UserService } from '../services/UserService';
-import { PaymentService } from '../services/PaymentService'; // Import PaymentService
+import { PaymentService } from '../services/PaymentService';
 import { ReservationService } from '../services/ReservationService';
+import { ReservationValidator } from '../services/ReservationValidator'; // Import ReservationValidator
 import { AppError } from '../exceptions';
 
 // Instantiate repositories and services
@@ -14,14 +15,16 @@ const userService = new UserService(userRepository);
 
 const caravanRepository = new CaravanRepository();
 const reservationRepository = new ReservationRepository();
-const paymentRepository = new PaymentRepository(); // Instantiate PaymentRepository
-const paymentService = new PaymentService(paymentRepository, reservationRepository); // Instantiate PaymentService
+const paymentRepository = new PaymentRepository();
+const paymentService = new PaymentService(paymentRepository, reservationRepository);
+const reservationValidator = new ReservationValidator(reservationRepository); // Instantiate ReservationValidator
 
 const reservationService = new ReservationService(
   reservationRepository,
   caravanRepository,
   userService,
-  paymentService // Inject paymentService
+  paymentService,
+  reservationValidator // Inject reservationValidator
 );
 
 export const createReservation = async (req: Request, res: Response) => {

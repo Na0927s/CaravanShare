@@ -2,26 +2,30 @@ import { Reservation } from '../models/Reservation';
 import { ReservationRepository } from '../repositories/ReservationRepository';
 import { CaravanRepository } from '../repositories/CaravanRepository';
 import { UserService } from './UserService';
-import { PaymentService } from './PaymentService'; // Import PaymentService
+import { PaymentService } from './PaymentService';
+import { ReservationValidator } from './ReservationValidator'; // Import ReservationValidator
 import { BadRequestError, NotFoundError, ConflictError } from '../exceptions/index';
-import { Payment } from '../models/Payment'; // Import Payment model for getPaymentHistory return type
+import { Payment } from '../models/Payment';
 
 export class ReservationService {
   private reservationRepository: ReservationRepository;
   private caravanRepository: CaravanRepository;
   private userService: UserService;
-  private paymentService: PaymentService; // Add PaymentService
+  private paymentService: PaymentService;
+  private reservationValidator: ReservationValidator; // Add ReservationValidator
 
   constructor(
     reservationRepository: ReservationRepository,
     caravanRepository: CaravanRepository,
     userService: UserService,
-    paymentService: PaymentService // Inject PaymentService
+    paymentService: PaymentService,
+    reservationValidator: ReservationValidator // Inject ReservationValidator
   ) {
     this.reservationRepository = reservationRepository;
     this.caravanRepository = caravanRepository;
     this.userService = userService;
-    this.paymentService = paymentService; // Assign
+    this.paymentService = paymentService;
+    this.reservationValidator = reservationValidator; // Assign
   }
 
   async createReservation(
@@ -38,24 +42,18 @@ export class ReservationService {
       throw new NotFoundError('Caravan not found');
     }
 
-    const newStart = new Date(startDate);
-    const newEnd = new Date(endDate);
+    // Delegate date validation to ReservationValidator
+    this.reservationValidator.validateReservationDates(startDate, endDate);
 
-    if (newStart >= newEnd) {
-      throw new BadRequestError('End date must be after start date');
-    }
-
-    // Check for overlapping reservations
-    const overlappingReservations = await this.reservationRepository.findOverlappingReservations(
+    // Delegate overlapping reservation check to ReservationValidator
+    await this.reservationValidator.checkOverlappingReservations(
       caravanId,
-      newStart,
-      newEnd
+      startDate,
+      endDate
     );
 
-    if (overlappingReservations.length > 0) {
-      throw new ConflictError('The selected dates are not available for this caravan.');
-    }
-
+    const newStart = new Date(startDate);
+    const newEnd = new Date(endDate);
     const durationInDays = Math.ceil(
       (newEnd.getTime() - newStart.getTime()) / (1000 * 60 * 60 * 24)
     );
@@ -86,11 +84,11 @@ export class ReservationService {
       throw new BadRequestError('Host ID is required');
     }
     // First, find all caravans owned by this host
-    const hostCaravans = await this.caravanRepository.findAll(); // More efficient if repository had findByHostId
+    const hostCaravans = await this.caravanRepository.findAll();
     const hostCaravanIds = hostCaravans.filter(c => c.hostId === hostId).map(c => c.id);
 
     if (hostCaravanIds.length === 0) {
-        return []; // No caravans for this host, so no reservations
+        return [];
     }
 
     // Then, find reservations for those caravans
@@ -133,7 +131,7 @@ export class ReservationService {
     }
 
     // Process payment through PaymentService
-    const payment = await this.paymentService.processPayment(id); // This will also update reservation status to 'confirmed'
+    const payment = await this.paymentService.processPayment(id);
     
     // Fetch the updated reservation from the repository
     const updatedReservation = await this.reservationRepository.findById(id);
@@ -147,7 +145,7 @@ export class ReservationService {
     return updatedReservation;
   }
 
-  async getPaymentHistory(userId: string): Promise<Payment[]> { // Return Payment[] now
+  async getPaymentHistory(userId: string): Promise<Payment[]> {
     if (!userId) {
       throw new BadRequestError('User ID is required');
     }
