@@ -2,21 +2,26 @@ import { Reservation } from '../models/Reservation';
 import { ReservationRepository } from '../repositories/ReservationRepository';
 import { CaravanRepository } from '../repositories/CaravanRepository';
 import { UserService } from './UserService';
+import { PaymentService } from './PaymentService'; // Import PaymentService
 import { BadRequestError, NotFoundError, ConflictError } from '../exceptions/index';
+import { Payment } from '../models/Payment'; // Import Payment model for getPaymentHistory return type
 
 export class ReservationService {
   private reservationRepository: ReservationRepository;
   private caravanRepository: CaravanRepository;
   private userService: UserService;
+  private paymentService: PaymentService; // Add PaymentService
 
   constructor(
     reservationRepository: ReservationRepository,
     caravanRepository: CaravanRepository,
-    userService: UserService
+    userService: UserService,
+    paymentService: PaymentService // Inject PaymentService
   ) {
     this.reservationRepository = reservationRepository;
     this.caravanRepository = caravanRepository;
     this.userService = userService;
+    this.paymentService = paymentService; // Assign
   }
 
   async createReservation(
@@ -127,18 +132,13 @@ export class ReservationService {
       throw new BadRequestError('Reservation ID is required');
     }
 
-    const reservation = await this.reservationRepository.findById(id);
-    if (!reservation) {
-      throw new NotFoundError('Reservation not found');
-    }
-
-    if (reservation.status !== 'awaiting_payment') {
-      throw new BadRequestError('Reservation is not awaiting payment');
-    }
-
-    const updatedReservation = await this.reservationRepository.update(id, { status: 'confirmed' });
+    // Process payment through PaymentService
+    const payment = await this.paymentService.processPayment(id); // This will also update reservation status to 'confirmed'
+    
+    // Fetch the updated reservation from the repository
+    const updatedReservation = await this.reservationRepository.findById(id);
     if (!updatedReservation) {
-        throw new Error('Failed to confirm payment for reservation'); // Should not happen
+      throw new Error('Confirmed reservation not found after payment processing'); // Should not happen
     }
 
     // Update guest's trust score for completing a reservation
@@ -147,11 +147,11 @@ export class ReservationService {
     return updatedReservation;
   }
 
-  async getPaymentHistory(userId: string): Promise<Reservation[]> {
+  async getPaymentHistory(userId: string): Promise<Payment[]> { // Return Payment[] now
     if (!userId) {
       throw new BadRequestError('User ID is required');
     }
-    const allReservations = await this.reservationRepository.findByGuestId(userId);
-    return allReservations.filter(r => r.status === 'confirmed');
+    // Delegate to PaymentService
+    return this.paymentService.getPaymentHistoryByUserId(userId);
   }
 }

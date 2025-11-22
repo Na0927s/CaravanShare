@@ -24,7 +24,7 @@ export class CaravanService {
     return caravan;
   }
 
-  async createCaravan(caravanData: Omit<Caravan, 'id' | 'status'> & { status?: 'available' | 'reserved' | 'maintenance' }): Promise<Caravan> {
+  async createCaravan(caravanData: Omit<Caravan, 'id' | 'status' | 'imageUrl'> & { imageUrl?: string; status?: 'available' | 'reserved' | 'maintenance' }): Promise<Caravan> {
     const { name, description, capacity, location, pricePerDay, hostId, status } = caravanData;
 
     if (!name || !description || !capacity || !location || !pricePerDay || !hostId) {

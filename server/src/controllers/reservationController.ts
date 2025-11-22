@@ -1,20 +1,27 @@
 import { Request, Response } from 'express';
 import { ReservationRepository } from '../repositories/ReservationRepository';
 import { CaravanRepository } from '../repositories/CaravanRepository';
-import { UserRepository } from '../repositories/UserRepository'; // Required for UserService
+import { UserRepository } from '../repositories/UserRepository';
+import { PaymentRepository } from '../repositories/PaymentRepository'; // Import PaymentRepository
 import { UserService } from '../services/UserService';
+import { PaymentService } from '../services/PaymentService'; // Import PaymentService
 import { ReservationService } from '../services/ReservationService';
 import { AppError } from '../exceptions';
 
 // Instantiate repositories and services
-const reservationRepository = new ReservationRepository();
-const caravanRepository = new CaravanRepository();
 const userRepository = new UserRepository();
 const userService = new UserService(userRepository);
+
+const caravanRepository = new CaravanRepository();
+const reservationRepository = new ReservationRepository();
+const paymentRepository = new PaymentRepository(); // Instantiate PaymentRepository
+const paymentService = new PaymentService(paymentRepository, reservationRepository); // Instantiate PaymentService
+
 const reservationService = new ReservationService(
   reservationRepository,
   caravanRepository,
-  userService
+  userService,
+  paymentService // Inject paymentService
 );
 
 export const createReservation = async (req: Request, res: Response) => {
