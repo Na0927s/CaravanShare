@@ -7,7 +7,9 @@ import { UserService } from '../services/UserService';
 import { PaymentService } from '../services/PaymentService';
 import { ReservationService } from '../services/ReservationService';
 import { ReservationValidator } from '../services/ReservationValidator';
-import { ReservationFactory } from '../services/ReservationFactory'; // Import ReservationFactory
+import { ReservationFactory } from '../services/ReservationFactory';
+import { NoDiscountStrategy } from '../services/DiscountStrategy';
+import { NotificationService } from '../services/NotificationService'; // Import NotificationService
 import { AppError } from '../exceptions';
 
 // Instantiate repositories and services
@@ -19,7 +21,9 @@ const reservationRepository = new ReservationRepository();
 const paymentRepository = new PaymentRepository();
 const paymentService = new PaymentService(paymentRepository, reservationRepository);
 const reservationValidator = new ReservationValidator(reservationRepository);
-const reservationFactory = new ReservationFactory(); // Instantiate ReservationFactory
+const reservationFactory = new ReservationFactory();
+const noDiscountStrategy = new NoDiscountStrategy();
+const notificationService = new NotificationService(); // Instantiate NotificationService
 
 const reservationService = new ReservationService(
   reservationRepository,
@@ -27,7 +31,9 @@ const reservationService = new ReservationService(
   userService,
   paymentService,
   reservationValidator,
-  reservationFactory // Inject reservationFactory
+  reservationFactory,
+  noDiscountStrategy,
+  notificationService // Inject notificationService
 );
 
 export const createReservation = async (req: Request, res: Response) => {
