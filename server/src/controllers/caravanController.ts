@@ -1,99 +1,76 @@
 import { Request, Response } from 'express';
-import { Caravan } from '../models/Caravan';
-import { v4 as uuidv4 } from 'uuid';
-import { readData, writeData } from '../db/utils';
+import { CaravanRepository } from '../repositories/CaravanRepository';
+import { CaravanService } from '../services/CaravanService';
+import { AppError } from '../exceptions';
 
-const CARAVANS_FILE = 'caravans.json';
+// Instantiate repositories and services
+const caravanRepository = new CaravanRepository();
+const caravanService = new CaravanService(caravanRepository);
 
 export const getCaravans = async (req: Request, res: Response) => {
-  const caravans = await readData<Caravan>(CARAVANS_FILE);
-  res.json(caravans);
+  try {
+    const caravans = await caravanService.getCaravans();
+    res.json(caravans);
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
 export const getCaravanById = async (req: Request, res: Response) => {
-  const caravans = await readData<Caravan>(CARAVANS_FILE);
-  const caravan = caravans.find(c => c.id === req.params.id);
-  if (caravan) {
+  try {
+    const { id } = req.params;
+    const caravan = await caravanService.getCaravanById(id);
     res.json(caravan);
-  } else {
-    res.status(404).json({ message: 'Caravan not found' });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 export const createCaravan = async (req: Request, res: Response) => {
-  const { name, description, capacity, amenities, location, pricePerDay, imageUrl, hostId, status } = req.body;
-
-  // Basic validation
-  if (!name || !description || !capacity || !location || !pricePerDay || !hostId) {
-    return res.status(400).json({ message: 'Missing required fields' });
+  try {
+    const newCaravan = await caravanService.createCaravan(req.body);
+    res.status(201).json(newCaravan);
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-  if (status && !['available', 'reserved', 'maintenance'].includes(status)) {
-    return res.status(400).json({ message: 'Invalid status provided' });
-  }
-
-  const newCaravan: Caravan = {
-    id: uuidv4(),
-    name,
-    description,
-    capacity,
-    amenities: amenities || [],
-    location,
-    pricePerDay,
-    imageUrl: imageUrl || `https://via.placeholder.com/300x200.png?text=${name.replace(/\s/g, '+')}`,
-    hostId,
-    status: status || 'available', // Set default status
-  };
-
-  const caravans = await readData<Caravan>(CARAVANS_FILE);
-  caravans.push(newCaravan);
-  await writeData<Caravan>(CARAVANS_FILE, caravans);
-
-  res.status(201).json(newCaravan);
 };
 
 export const updateCaravan = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { status } = req.body; // Extract status for validation
-
-  if (status && !['available', 'reserved', 'maintenance'].includes(status)) {
-    return res.status(400).json({ message: 'Invalid status provided' });
+  try {
+    const { id } = req.params;
+    const updatedCaravan = await caravanService.updateCaravan(id, req.body);
+    res.status(200).json(updatedCaravan);
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-
-  const caravans = await readData<Caravan>(CARAVANS_FILE);
-  const caravanIndex = caravans.findIndex(c => c.id === id);
-
-  if (caravanIndex === -1) {
-    return res.status(404).json({ message: 'Caravan not found' });
-  }
-
-  // In a real app, you should also verify that the user making the request is the owner of the caravan.
-  
-  const originalCaravan = caravans[caravanIndex];
-  const updatedCaravan = { ...originalCaravan, ...req.body };
-  caravans[caravanIndex] = updatedCaravan;
-
-  await writeData<Caravan>(CARAVANS_FILE, caravans);
-
-  res.status(200).json(updatedCaravan);
 };
 
 export const deleteCaravan = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const caravans = await readData<Caravan>(CARAVANS_FILE);
-  const caravanIndex = caravans.findIndex(c => c.id === id);
-
-  if (caravanIndex === -1) {
-    return res.status(404).json({ message: 'Caravan not found' });
+  try {
+    const { id } = req.params;
+    await caravanService.deleteCaravan(id);
+    res.status(200).json({ message: 'Caravan deleted successfully' });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-
-  // In a real app, you should also verify that the user making the request is the owner of the caravan.
-  // const userId = req.user.id; // Assuming user info is attached to the request
-  // if (caravans[caravanIndex].hostId !== userId) {
-  //   return res.status(403).json({ message: 'You are not authorized to delete this caravan' });
-  // }
-
-  caravans.splice(caravanIndex, 1);
-  await writeData<Caravan>(CARAVANS_FILE, caravans);
-
-  res.status(200).json({ message: 'Caravan deleted successfully' });
 };
