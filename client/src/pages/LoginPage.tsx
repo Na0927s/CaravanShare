@@ -86,16 +86,13 @@ const LoginPage = () => {
       </div>
 
       <div className="d-grid gap-2">
-        <Button variant="light" className="border" onClick={() => alert('네이버 로그인은 아직 구현되지 않았습니다.')}>
-          <img src="/images/naver-logo.png" alt="네이버" style={{ height: '20px', marginRight: '10px' }} />
+        <Button variant="success" onClick={() => alert('네이버 로그인은 아직 구현되지 않았습니다.')}>
           네이버로 로그인
         </Button>
-        <Button variant="light" className="border" onClick={() => window.location.href = 'http://localhost:3001/api/users/auth/kakao'}>
-          <img src="/images/kakao-logo.png" alt="카카오" style={{ height: '20px', marginRight: '10px' }} />
+        <Button variant="warning" onClick={() => window.location.href = 'http://localhost:3001/api/users/auth/kakao'}>
           카카오로 로그인
         </Button>
         <Button variant="light" className="border" onClick={() => alert('구글 로그인은 아직 구현되지 않았습니다.')}>
-          <img src="/images/google-logo.png" alt="구글" style={{ height: '20px', marginRight: '10px' }} />
           구글로 로그인
         </Button>
       </div>
