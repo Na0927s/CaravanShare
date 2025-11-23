@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import { signup, login, getUserById, updateUser, requestIdentityVerification, deleteUser, kakaoLogin, kakaoCallback } from '../controllers/userController';
+import { signup, login, getUserById, updateUser, requestIdentityVerification, deleteUser, kakaoLogin, kakaoCallback, socialSignup } from '../controllers/userController';
 
 const router = Router();
 
 router.post('/signup', signup);
 router.post('/login', login);
+router.post('/social-signup', socialSignup);
 
 // Kakao Auth
 router.get('/auth/kakao', kakaoLogin);

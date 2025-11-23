@@ -31,26 +31,18 @@ export const kakaoCallback = async (req: Request, res: Response) => {
     const userProfile = await kakaoAuthService.getUserProfile(accessToken);
 
     const kakaoId = userProfile.id.toString();
-    // Handle optional email
     const email = userProfile.kakao_account?.email || `${kakaoId}@kakao.com`;
     const name = userProfile.properties.nickname;
 
     let user = await userService.findUserByKakaoId(kakaoId);
 
     if (!user) {
-      // User not found, create a new one
-      user = await userService.signup({
-        email,
-        password: '', // No password for social login
-        name,
-        role: 'guest',
-        contact: '', // Or some default
-        identity_verification_status: 'not_verified',
-        kakaoId,
-      });
+      // User is new, redirect to client to select a role
+      const encodedName = encodeURIComponent(name);
+      return res.redirect(`http://localhost:3000/select-role?kakaoId=${kakaoId}&name=${encodedName}`);
     }
 
-    // For now, redirect to client homepage with user ID. In a real app, you'd create a session/JWT.
+    // User exists, log them in and redirect to client homepage with user ID.
     res.redirect(`http://localhost:3000/?userId=${user.id}`);
   } catch (error) {
     if (error instanceof AppError) {
@@ -60,6 +52,32 @@ export const kakaoCallback = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+export const socialSignup = async (req: Request, res: Response) => {
+  try {
+    const { kakaoId, name, role } = req.body;
+    const email = `${kakaoId}@kakao.com`; // Placeholder email
+
+    const newUser = await userService.signup({
+      email,
+      password: '', // No password for social login
+      name,
+      role,
+      contact: '', // Or some default
+      identity_verification_status: 'not_verified',
+      kakaoId,
+    });
+
+    res.status(201).json({ message: 'User registered successfully', user: newUser });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    console.error(error instanceof Error ? error.stack : error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 export const signup = async (req: Request, res: Response) => {
   try {
     const { email, password, name, role, contact } = req.body;

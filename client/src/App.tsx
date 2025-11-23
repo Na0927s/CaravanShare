@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage';
 import CaravansPage from './pages/CaravansPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import SelectRolePage from './pages/SelectRolePage'; // Import the new page
 import CaravanRegistrationPage from './pages/CaravanRegistrationPage';
 import CaravanEditPage from './pages/CaravanEditPage'; // Import the new page
 import MyReservationsPage from './pages/MyReservationsPage';
@@ -31,6 +32,7 @@ function App() {
             <Route path="/caravans/:id/edit" element={<CaravanEditPage />} /> {/* Add the edit route */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/select-role" element={<SelectRolePage />} /> {/* Add the select role route */}
             <Route path="/my-reservations" element={<MyReservationsPage />} />
             <Route path="/host-dashboard" element={<HostDashboardPage />} />
             <Route path="/payment/:id" element={<PaymentPage />} />
