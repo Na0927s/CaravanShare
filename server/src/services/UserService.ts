@@ -30,11 +30,24 @@ export class UserService {
     this.reservationRepository = reservationRepository;
   }
 
-  async signup(userData: Omit<User, 'id' | 'created_at' | 'updated_at' | 'password_hash' | 'trust_score' | 'caravans' | 'reservations' | 'reviews'> & { password: string }): Promise<Omit<User, 'password_hash' | 'caravans' | 'reservations' | 'reviews'>> {
-    const { email, password, name, role, contact, identity_verification_status } = userData;
+  async findUserByKakaoId(kakaoId: string): Promise<Omit<User, 'password_hash' | 'caravans' | 'reservations' | 'reviews'> | null> {
+    const user = await this.userRepository.findByKakaoId(kakaoId);
+    if (!user) {
+      return null;
+    }
+    const { password_hash: _, caravans: __, reservations: ___, reviews: ____, ...userWithoutPasswordAndRelations } = user;
+    return userWithoutPasswordAndRelations;
+  }
 
-    if (!email || !password || !name || !role || !contact || !identity_verification_status) {
-      throw new BadRequestError('All fields are required');
+  async signup(userData: Omit<User, 'id' | 'created_at' | 'updated_at' | 'password_hash' | 'trust_score' | 'caravans' | 'reservations' | 'reviews'> & { password?: string, kakaoId?: string }): Promise<Omit<User, 'password_hash' | 'caravans' | 'reservations' | 'reviews'>> {
+    const { email, password, name, role, contact, identity_verification_status, kakaoId } = userData;
+
+    if (!email || !name || !role) {
+      throw new BadRequestError('Email, name, and role are required');
+    }
+
+    if (!password && !kakaoId) {
+      throw new BadRequestError('Password is required for traditional signup');
     }
 
     const existingUser = await this.userRepository.findByEmail(email);
@@ -42,7 +55,7 @@ export class UserService {
       throw new ConflictError('User with this email already exists');
     }
 
-    const password_hash = await hash(password, 10);
+    const password_hash = password ? await hash(password, 10) : '';
 
     const newUser = await this.userRepository.create({
       email,
@@ -51,7 +64,8 @@ export class UserService {
       role,
       contact,
       trust_score: 0,
-      identity_verification_status
+      identity_verification_status,
+      kakaoId: kakaoId || null
     });
 
     // Remove password_hash and relations before returning
@@ -67,6 +81,10 @@ export class UserService {
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
       throw new NotFoundError('Invalid credentials');
+    }
+
+    if (!user.password_hash) { // Social login user trying to log in with password
+      throw new BadRequestError('Please log in with your social account.');
     }
 
     const isPasswordValid = await compare(password, user.password_hash);

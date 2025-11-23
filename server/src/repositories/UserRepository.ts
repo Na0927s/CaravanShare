@@ -22,6 +22,10 @@ export class UserRepository {
     return this.userRepository.findOne({ where: { email } });
   }
 
+  async findByKakaoId(kakaoId: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { kakaoId } });
+  }
+
   async update(id: string, updates: Partial<User>): Promise<User | null> {
     const user = await this.findById(id);
     if (!user) {

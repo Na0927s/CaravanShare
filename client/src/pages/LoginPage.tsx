@@ -90,7 +90,7 @@ const LoginPage = () => {
           <img src="/images/naver-logo.png" alt="네이버" style={{ height: '20px', marginRight: '10px' }} />
           네이버로 로그인
         </Button>
-        <Button variant="light" className="border" onClick={() => alert('카카오 로그인은 아직 구현되지 않았습니다.')}>
+        <Button variant="light" className="border" onClick={() => window.location.href = 'http://localhost:3001/api/users/auth/kakao'}>
           <img src="/images/kakao-logo.png" alt="카카오" style={{ height: '20px', marginRight: '10px' }} />
           카카오로 로그인
         </Button>

@@ -1,9 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Container } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './HomePage.css'; // We will create this file for styling
 
 const HomePage = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const userId = queryParams.get('userId');
+
+    if (userId) {
+      // In a real app, you'd fetch the full user details here.
+      // For now, we'll just store the ID and a placeholder token.
+      localStorage.setItem('userToken', 'social-login-token-' + userId);
+      localStorage.setItem('userInfo', JSON.stringify({ id: userId, name: '카카오 사용자' })); // Store basic info
+
+      // Dispatch event to update header
+      window.dispatchEvent(new Event('loginSuccess'));
+
+      // Clean the URL
+      navigate('/', { replace: true });
+    }
+  }, [navigate]);
+
   return (
     <>
       <div className="hero-section">

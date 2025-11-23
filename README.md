@@ -138,34 +138,40 @@ npm start
 
 ## 📚 API 문서
 
-### 사용자 API
+### 사용자 API (`/api/users`)
 | Method | Endpoint | 설명 |
 |--------|----------|------|
-| POST   | /users/register | 회원가입 |
-| POST   | /users/login    | 로그인 |
-| GET    | /users/:id      | 사용자 정보 조회 |
+| POST   | /signup | 회원가입 |
+| POST   | /login    | 로그인 |
+| GET    | /:id      | 사용자 정보 조회 |
+| PUT    | /:id      | 사용자 정보 수정 |
+| DELETE | /:id      | 회원 탈퇴 |
+| POST   | /request-verification | 신원 확인 요청 |
 
-### 카라반 API
+### 카라반 API (`/api/caravans`)
 | Method | Endpoint | 설명 |
 |--------|----------|------|
-| GET    | /caravans       | 카라반 목록 조회 |
-| GET    | /caravans/:id   | 카라반 상세 정보 조회 |
-| POST   | /caravans       | 카라반 등록 (호스트) |
-| PUT    | /caravans/:id   | 카라반 정보 수정 (호스트) |
+| GET    | /       | 모든 카라반 목록 조회 |
+| POST   | /       | 새 카라반 등록 (호스트) |
+| GET    | /:id   | 특정 카라반 상세 정보 조회 |
+| PUT    | /:id   | 카라반 정보 수정 (호스트) |
+| DELETE | /:id   | 카라반 삭제 (호스트) |
+| GET    | /:id/reviews | 특정 카라반의 리뷰 목록 조회 |
 
-### 예약 API
+### 예약 API (`/api/reservations`)
 | Method | Endpoint | 설명 |
 |--------|----------|------|
-| POST   | /reservations      | 예약 생성 |
-| GET    | /reservations/me   | 내 예약 목록 (게스트) |
-| GET    | /reservations/host | 내 카라반의 예약 목록 (호스트) |
-| PATCH  | /reservations/:id/status | 예약 상태 변경 (승인/거절) |
-| POST   | /reservations/:id/payment | 예약 결제 |
+| POST   | /      | 예약 생성 |
+| GET    | /my-reservations   | 내 예약 목록 조회 (Query: `guestId`) |
+| GET    | /host-reservations | 내 카라반의 예약 목록 조회 (Query: `hostId`) |
+| PUT    | /:id/status | 예약 상태 변경 (승인/거절) |
+| PUT    | /:id/pay | 예약 결제 확인 |
+| GET    | /payment-history/:userId | 특정 사용자의 결제 내역 조회 |
 
-### 리뷰 API
+### 리뷰 API (`/api/reviews`)
 | Method | Endpoint | 설명 |
 |--------|----------|------|
-| POST   | /reviews | 리뷰 작성 |
-| GET    | /reviews/caravan/:id | 특정 카라반의 리뷰 목록 |
+| POST   | / | 리뷰 작성 |
+| GET    | /user/:userId | 특정 사용자가 작성한 리뷰 목록 |
 ---
 

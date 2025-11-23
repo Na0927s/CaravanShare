@@ -11,6 +11,9 @@ export class User {
   @Column({ unique: true })
   email!: string;
 
+  @Column({ type: "varchar", nullable: true, unique: true })
+  kakaoId?: string | null;
+
   @Column()
   password_hash!: string;
 

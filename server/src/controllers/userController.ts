@@ -4,6 +4,7 @@ import { CaravanRepository } from '../repositories/CaravanRepository';
 import { ReviewRepository } from '../repositories/ReviewRepository';
 import { ReservationRepository } from '../repositories/ReservationRepository';
 import { UserService } from '../services/UserService';
+import { KakaoAuthService } from '../services/KakaoAuthService';
 import { AppError } from '../exceptions';
 
 // Instantiate repositories and services (for now, direct instantiation; later can be managed by a DI container)
@@ -12,7 +13,53 @@ const caravanRepository = new CaravanRepository();
 const reviewRepository = new ReviewRepository();
 const reservationRepository = new ReservationRepository();
 const userService = new UserService(userRepository, caravanRepository, reviewRepository, reservationRepository);
+const kakaoAuthService = new KakaoAuthService();
 
+export const kakaoLogin = (req: Request, res: Response) => {
+  const authorizationUrl = kakaoAuthService.getAuthorizationUrl();
+  res.redirect(authorizationUrl);
+};
+
+export const kakaoCallback = async (req: Request, res: Response) => {
+  try {
+    const { code } = req.query;
+    if (!code) {
+      throw new AppError('Authorization code not found', 400);
+    }
+
+    const accessToken = await kakaoAuthService.getAccessToken(code as string);
+    const userProfile = await kakaoAuthService.getUserProfile(accessToken);
+
+    const kakaoId = userProfile.id.toString();
+    // Handle optional email
+    const email = userProfile.kakao_account?.email || `${kakaoId}@kakao.com`;
+    const name = userProfile.properties.nickname;
+
+    let user = await userService.findUserByKakaoId(kakaoId);
+
+    if (!user) {
+      // User not found, create a new one
+      user = await userService.signup({
+        email,
+        password: '', // No password for social login
+        name,
+        role: 'guest',
+        contact: '', // Or some default
+        identity_verification_status: 'not_verified',
+        kakaoId,
+      });
+    }
+
+    // For now, redirect to client homepage with user ID. In a real app, you'd create a session/JWT.
+    res.redirect(`http://localhost:3000/?userId=${user.id}`);
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    console.error(error instanceof Error ? error.stack : error); // Safely log error stack
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 export const signup = async (req: Request, res: Response) => {
   try {
     const { email, password, name, role, contact } = req.body;

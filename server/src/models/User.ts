@@ -1,6 +1,7 @@
 export interface User {
   id: string;
   email: string;
+  kakaoId?: string | null;
   password_hash: string; // In a real app, never store plain text passwords
   name: string;
   role: 'host' | 'guest';
