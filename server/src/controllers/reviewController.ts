@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ReviewRepository } from '../repositories/ReviewRepository';
 import { CaravanRepository } from '../repositories/CaravanRepository';
 import { UserRepository } from '../repositories/UserRepository'; // Required for UserService
+import { ReservationRepository } from '../repositories/ReservationRepository'; // New import
 import { UserService } from '../services/UserService';
 import { ReviewService } from '../services/ReviewService';
 import { AppError } from '../exceptions';
@@ -10,7 +11,8 @@ import { AppError } from '../exceptions';
 const reviewRepository = new ReviewRepository();
 const caravanRepository = new CaravanRepository();
 const userRepository = new UserRepository();
-const userService = new UserService(userRepository);
+const reservationRepository = new ReservationRepository(); // New instantiation
+const userService = new UserService(userRepository, caravanRepository, reviewRepository, reservationRepository);
 const reviewService = new ReviewService(reviewRepository, caravanRepository, userService);
 
 export const createReview = async (req: Request, res: Response) => {

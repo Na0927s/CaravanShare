@@ -10,14 +10,16 @@ import { ReservationValidator } from '../services/ReservationValidator';
 import { ReservationFactory } from '../services/ReservationFactory';
 import { NoDiscountStrategy } from '../services/DiscountStrategy';
 import { NotificationService } from '../services/NotificationService'; // Import NotificationService
+import { ReviewRepository } from '../repositories/ReviewRepository'; // Added import
 import { AppError } from '../exceptions';
 
 // Instantiate repositories and services
 const userRepository = new UserRepository();
-const userService = new UserService(userRepository);
-
-const caravanRepository = new CaravanRepository();
+const caravanRepository = new CaravanRepository(); // Added instantiation
+const reviewRepository = new ReviewRepository(); // Added instantiation
 const reservationRepository = new ReservationRepository();
+const userService = new UserService(userRepository, caravanRepository, reviewRepository, reservationRepository); // Updated instantiation
+
 const paymentRepository = new PaymentRepository();
 const paymentService = new PaymentService(paymentRepository, reservationRepository);
 const reservationValidator = new ReservationValidator(reservationRepository);

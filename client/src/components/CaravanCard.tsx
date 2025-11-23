@@ -28,7 +28,12 @@ const CaravanCard: React.FC<CaravanCardProps> = ({ caravan, currentUserId, onDel
 
   return (
     <Card className="h-100">
-      <Card.Img variant="top" src={caravan.image_url} alt={caravan.name} style={{ height: '200px', objectFit: 'cover' }} /> {/* Changed from imageUrl to image_url */}
+      <Card.Img
+        variant="top"
+        src={caravan.image_url || `https://placehold.co/300x200.png?text=No+Image`}
+        alt={caravan.name}
+        style={{ height: '200px', objectFit: 'cover' }}
+      /> {/* Changed from imageUrl to image_url */}
       <Card.Body className="d-flex flex-column">
         <Card.Title>{caravan.name}</Card.Title>
         <Card.Text as="div">

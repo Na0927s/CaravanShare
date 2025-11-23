@@ -47,7 +47,7 @@ const CaravanDetailPage = () => {
             <ListGroup.Item>편의시설: {caravan.amenities.join(', ')}</ListGroup.Item>
             <ListGroup.Item>가격: {caravan.price_per_day.toLocaleString()}원 / 1일</ListGroup.Item> {/* Changed from pricePerDay to price_per_day */}
             <ListGroup.Item>
-              호스트: {loadingHost ? '로딩 중...' : (host ? `${host.name} (신뢰도 점수: ${host.trustScore})` : '정보 없음')} {/* Changed host.trust_score to host.trustScore */}
+              호스트: {loadingHost ? '로딩 중...' : (host ? `${host.name} (신뢰도 점수: ${host.trust_score})` : '정보 없음')} {/* Changed host.trust_score to host.trustScore */}
             </ListGroup.Item>
             <ListGroup.Item><strong>평균 평점: {averageRating}</strong></ListGroup.Item>
           </ListGroup>

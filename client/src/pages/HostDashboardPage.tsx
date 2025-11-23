@@ -97,19 +97,13 @@ const HostDashboardPage = () => {
           <tbody>
             {reservations.map((reservation, index) => (
               <tr key={reservation.id}>
-                <td>{index + 1}</td>
-                <td>{reservation.caravan_id.substring(0, 8)}...</td> {/* Changed caravanId to caravan_id */}
-                <td>{reservation.guest_id.substring(0, 8)}...</td> {/* Changed guestId to guest_id */}
-                <td>{new Date(reservation.start_date).toLocaleDateString()}</td> {/* Changed startDate to start_date */}
-                <td>{new Date(reservation.end_date).toLocaleDateString()}</td> {/* Changed endDate to end_date */}
-                <td>{reservation.total_price.toLocaleString()} 원</td> {/* Changed totalPrice to total_price */}
-                <td>{getStatusText(reservation.status)}</td>
+                <td>{index + 1}</td><td>{reservation.caravan_id.substring(0, 8)}...</td><td>{reservation.guest_id.substring(0, 8)}...</td><td>{new Date(reservation.start_date).toLocaleDateString()}</td><td>{new Date(reservation.end_date).toLocaleDateString()}</td><td>{reservation.total_price.toLocaleString()} 원</td><td>{getStatusText(reservation.status)}</td>
                 <td>
                   {reservation.status === 'pending' && (
                     <>
-                      <Button variant="success" size="sm" onClick={() => handleStatusUpdate(reservation.id, 'approved')}>
+                      <Button variant="success" size="sm" className="me-2" onClick={() => handleStatusUpdate(reservation.id, 'approved')}>
                         승인
-                      </Button>{' '}
+                      </Button>
                       <Button variant="danger" size="sm" onClick={() => handleStatusUpdate(reservation.id, 'rejected')}>
                         거절
                       </Button>

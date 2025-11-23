@@ -26,6 +26,12 @@ export class User {
   @Column({ default: 0 })
   trust_score!: number;
 
+  @Column({
+    type: 'varchar',
+    default: 'not_verified',
+  })
+  identity_verification_status!: 'not_verified' | 'pending' | 'verified';
+
   @CreateDateColumn()
   created_at!: Date;
 

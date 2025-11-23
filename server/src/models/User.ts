@@ -7,4 +7,5 @@ export interface User {
   createdAt: string;
   contact?: string; // Optional contact information
   trustScore: number; // Add trustScore field
+  identity_verification_status: 'not_verified' | 'pending' | 'verified';
 }

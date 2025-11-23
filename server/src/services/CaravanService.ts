@@ -41,7 +41,7 @@ export class CaravanService {
       amenities: caravanData.amenities || [],
       location,
       price_per_day,
-      image_url: caravanData.image_url || `https://via.placeholder.com/300x200.png?text=${name.replace(/\s/g, '+')}`,
+      image_url: caravanData.image_url || `https://placehold.co/300x200.png?text=${name.replace(/\s/g, '+')}`,
       host_id,
       status: status || 'available',
     });

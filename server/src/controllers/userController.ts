@@ -1,16 +1,22 @@
 import { Request, Response } from 'express';
 import { UserRepository } from '../repositories/UserRepository';
+import { CaravanRepository } from '../repositories/CaravanRepository';
+import { ReviewRepository } from '../repositories/ReviewRepository';
+import { ReservationRepository } from '../repositories/ReservationRepository';
 import { UserService } from '../services/UserService';
 import { AppError } from '../exceptions';
 
 // Instantiate repositories and services (for now, direct instantiation; later can be managed by a DI container)
 const userRepository = new UserRepository();
-const userService = new UserService(userRepository);
+const caravanRepository = new CaravanRepository();
+const reviewRepository = new ReviewRepository();
+const reservationRepository = new ReservationRepository();
+const userService = new UserService(userRepository, caravanRepository, reviewRepository, reservationRepository);
 
 export const signup = async (req: Request, res: Response) => {
   try {
     const { email, password, name, role, contact } = req.body;
-    const newUser = await userService.signup({ email, password, name, role, contact });
+    const newUser = await userService.signup({ email, password, name, role, contact, identity_verification_status: 'not_verified' });
     res.status(201).json({ message: 'User registered successfully', user: newUser });
   } catch (error) {
     if (error instanceof AppError) {
@@ -60,6 +66,41 @@ export const updateUser = async (req: Request, res: Response) => {
       return res.status(error.statusCode).json({ message: error.message });
     }
     console.error(error instanceof Error ? error.stack : error); // Safely log error stack
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const requestIdentityVerification = async (req: Request, res: Response) => {
+  try {
+    // This assumes an authentication middleware has run and attached the user's ID to the request.
+    // E.g., const userId = (req as any).user.id;
+    // For now, we will take it from req.body for testing purposes.
+    const { userId } = req.body;
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required in the request body.' });
+    }
+
+    const updatedUser = await userService.requestIdentityVerification(userId);
+    res.status(200).json({ message: 'Identity verification request submitted successfully', user: updatedUser });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    console.error(error instanceof Error ? error.stack : error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await userService.deleteUser(id);
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    console.error(error instanceof Error ? error.stack : error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

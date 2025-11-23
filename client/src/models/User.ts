@@ -3,7 +3,8 @@ export interface User {
   email: string;
   name: string;
   role: 'host' | 'guest';
-  createdAt: string;
+  created_at: string;
   contact?: string;
-  trustScore: number;
+  trust_score: number;
+  identity_verification_status: 'not_verified' | 'pending' | 'verified';
 }
