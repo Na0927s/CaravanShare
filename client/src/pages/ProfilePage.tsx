@@ -117,13 +117,13 @@ const ProfilePage = () => {
           throw new Error(data.message || '계정 삭제에 실패했습니다.');
         }
 
-        // Clear user info and log out
+        // Perform a full logout
+        localStorage.removeItem('userToken');
         localStorage.removeItem('userInfo');
-        // Optionally, you might want to clear other stored data
-        // localStorage.clear(); 
+        window.dispatchEvent(new Event('logoutSuccess'));
         
-        alert('계정이 성공적으로 삭제되었습니다.');
-        navigate('/'); // Redirect to homepage
+        // Redirect to homepage, no alert needed as the logout will be visually apparent
+        navigate('/');
       } catch (err: any) {
         setUpdateError(err.message || '네트워크 오류가 발생했습니다.');
       }
