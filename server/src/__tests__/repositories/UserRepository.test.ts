@@ -61,8 +61,10 @@ describe('UserRepository', () => {
       password_hash: 'hashed_password',
       name: 'Test User',
       role: 'guest',
-      createdAt: new Date().toISOString(),
-      trustScore: 0,
+      created_at: new Date(),
+      updated_at: new Date(),
+      trust_score: 0,
+      identity_verification_status: 'not_verified',
     };
 
     // readFile mock for the first getAll call in create
@@ -87,8 +89,10 @@ describe('UserRepository', () => {
       password_hash: 'hashed_password',
       name: 'Test User',
       role: 'guest',
-      createdAt: new Date().toISOString(),
-      trustScore: 0,
+      created_at: new Date(),
+      updated_at: new Date(),
+      trust_score: 0,
+      identity_verification_status: 'not_verified',
     };
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([existingUser]));
 
@@ -114,8 +118,10 @@ describe('UserRepository', () => {
       password_hash: 'hashed_password',
       name: 'Test User',
       role: 'guest',
-      createdAt: new Date().toISOString(),
-      trustScore: 0,
+      created_at: new Date(),
+      updated_at: new Date(),
+      trust_score: 0,
+      identity_verification_status: 'not_verified',
     };
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([existingUser]));
 
@@ -141,10 +147,12 @@ describe('UserRepository', () => {
       password_hash: 'hashed_password',
       name: 'Test User',
       role: 'guest',
-      createdAt: new Date().toISOString(),
-      trustScore: 0,
+      created_at: new Date(),
+      updated_at: new Date(),
+      trust_score: 0,
+      identity_verification_status: 'not_verified',
     };
-    const updatedData = { name: 'Updated User Name', trustScore: 10 };
+    const updatedData = { name: 'Updated User Name', trust_score: 10 };
     const expectedUser = { ...existingUser, ...updatedData };
 
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([existingUser])); // Read
@@ -178,8 +186,10 @@ describe('UserRepository', () => {
       password_hash: 'hashed_password',
       name: 'Test User',
       role: 'guest',
-      createdAt: new Date().toISOString(),
-      trustScore: 0,
+      created_at: new Date(),
+      updated_at: new Date(),
+      trust_score: 0,
+      identity_verification_status: 'not_verified',
     };
 
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([existingUser])); // Read
@@ -208,8 +218,8 @@ describe('UserRepository', () => {
 
   it('should return all users', async () => {
     const users: User[] = [
-      { id: '1', email: 'test1@example.com', password_hash: 'hashed1', name: 'User1', role: 'guest', createdAt: new Date().toISOString(), trustScore: 0 },
-      { id: '2', email: 'test2@example.com', password_hash: 'hashed2', name: 'User2', role: 'host', createdAt: new Date().toISOString(), trustScore: 0 },
+      { id: '1', email: 'test1@example.com', password_hash: 'hashed1', name: 'User1', role: 'guest', created_at: new Date(), updated_at: new Date(), trust_score: 0, identity_verification_status: 'not_verified' },
+      { id: '2', email: 'test2@example.com', password_hash: 'hashed2', name: 'User2', role: 'host', created_at: new Date(), updated_at: new Date(), trust_score: 0, identity_verification_status: 'not_verified' },
     ];
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(users));
 

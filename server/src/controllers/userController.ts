@@ -42,8 +42,8 @@ export const kakaoCallback = async (req: Request, res: Response) => {
       return res.redirect(`http://localhost:3000/select-role?kakaoId=${kakaoId}&name=${encodedName}`);
     }
 
-    // User exists, log them in and redirect to client homepage with user ID.
-    res.redirect(`http://localhost:3000/?userId=${user.id}`);
+    // User exists, log them in and redirect to client homepage with user ID and role.
+    res.redirect(`http://localhost:3000/?userId=${user.id}&role=${user.role}`);
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
@@ -149,7 +149,7 @@ export const requestIdentityVerification = async (req: Request, res: Response) =
     res.status(200).json({ message: 'Identity verification request submitted successfully', user: updatedUser });
   } catch (error) {
     if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
+      return res.status(error.statusCode).json({ message: 'Internal server error' });
     }
     console.error(error instanceof Error ? error.stack : error);
     res.status(500).json({ message: 'Internal server error' });
@@ -169,4 +169,5 @@ export const deleteUser = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 

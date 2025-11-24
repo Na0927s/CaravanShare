@@ -47,11 +47,12 @@ describe('ReviewRepository', () => {
   it('should create a new review', async () => {
     const newReview: Review = {
       id: 'rev1',
-      caravanId: 'c1',
-      guestId: 'g1',
+      caravan_id: 'c1',
+      guest_id: 'g1',
       rating: 5,
       comment: 'Great caravan!',
-      createdAt: new Date().toISOString(),
+      created_at: new Date(),
+      updated_at: new Date(),
     };
 
     (fs.readFile as jest.Mock).mockResolvedValueOnce('[]');
@@ -71,11 +72,12 @@ describe('ReviewRepository', () => {
   it('should find a review by ID', async () => {
     const existingReview: Review = {
       id: 'rev1',
-      caravanId: 'c1',
-      guestId: 'g1',
+      caravan_id: 'c1',
+      guest_id: 'g1',
       rating: 5,
       comment: 'Great caravan!',
-      createdAt: new Date().toISOString(),
+      created_at: new Date(),
+      updated_at: new Date(),
     };
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([existingReview]));
 
@@ -97,11 +99,12 @@ describe('ReviewRepository', () => {
   it('should update an existing review', async () => {
     const existingReview: Review = {
       id: 'rev1',
-      caravanId: 'c1',
-      guestId: 'g1',
+      caravan_id: 'c1',
+      guest_id: 'g1',
       rating: 5,
       comment: 'Great caravan!',
-      createdAt: new Date().toISOString(),
+      created_at: new Date(),
+      updated_at: new Date(),
     };
     const updatedData = { rating: 4, comment: 'Good caravan.' };
     const expectedReview = { ...existingReview, ...updatedData };
@@ -133,11 +136,12 @@ describe('ReviewRepository', () => {
   it('should delete an existing review', async () => {
     const existingReview: Review = {
       id: 'rev1',
-      caravanId: 'c1',
-      guestId: 'g1',
+      caravan_id: 'c1',
+      guest_id: 'g1',
       rating: 5,
       comment: 'Great caravan!',
-      createdAt: new Date().toISOString(),
+      created_at: new Date(),
+      updated_at: new Date(),
     };
 
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([existingReview]));
@@ -155,7 +159,7 @@ describe('ReviewRepository', () => {
   });
 
   it('should return false if review to delete is not found', async () => {
-    (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([{ id: 'rev2', caravanId: 'c2' } as Review]));
+    (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([{ id: 'rev2', caravan_id: 'c2' } as Review]));
 
     const isDeleted = await reviewRepository.delete('rev1');
 
@@ -166,8 +170,8 @@ describe('ReviewRepository', () => {
 
   it('should return all reviews', async () => {
     const reviews: Review[] = [
-      { id: 'rev1', caravanId: 'c1', guestId: 'g1', rating: 5, comment: 'Good', createdAt: new Date().toISOString() },
-      { id: 'rev2', caravanId: 'c2', guestId: 'g2', rating: 4, comment: 'Okay', createdAt: new Date().toISOString() },
+      { id: 'rev1', caravan_id: 'c1', guest_id: 'g1', rating: 5, comment: 'Good', created_at: new Date(), updated_at: new Date() },
+      { id: 'rev2', caravan_id: 'c2', guest_id: 'g2', rating: 4, comment: 'Okay', created_at: new Date(), updated_at: new Date() },
     ];
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(reviews));
 
@@ -179,9 +183,9 @@ describe('ReviewRepository', () => {
 
   it('should find reviews by caravan ID', async () => {
     const reviews: Review[] = [
-      { id: 'rev1', caravanId: 'c1', guestId: 'g1', rating: 5, comment: 'Good', createdAt: new Date().toISOString() },
-      { id: 'rev2', caravanId: 'c2', guestId: 'g2', rating: 4, comment: 'Okay', createdAt: new Date().toISOString() },
-      { id: 'rev3', caravanId: 'c1', guestId: 'g3', rating: 3, comment: 'Bad', createdAt: new Date().toISOString() },
+      { id: 'rev1', caravan_id: 'c1', guest_id: 'g1', rating: 5, comment: 'Good', created_at: new Date(), updated_at: new Date() },
+      { id: 'rev2', caravan_id: 'c2', guest_id: 'g2', rating: 4, comment: 'Okay', created_at: new Date(), updated_at: new Date() },
+      { id: 'rev3', caravan_id: 'c1', guest_id: 'g3', rating: 3, comment: 'Bad', created_at: new Date(), updated_at: new Date() },
     ];
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(reviews));
 
@@ -193,9 +197,9 @@ describe('ReviewRepository', () => {
 
   it('should find reviews by guest ID', async () => {
     const reviews: Review[] = [
-      { id: 'rev1', caravanId: 'c1', guestId: 'g1', rating: 5, comment: 'Good', createdAt: new Date().toISOString() },
-            { id: 'rev2', caravanId: 'c2', guestId: 'g2', rating: 4, comment: 'Okay', createdAt: new Date().toISOString() },
-      { id: 'rev3', caravanId: 'c1', guestId: 'g1', rating: 3, comment: 'Bad', createdAt: new Date().toISOString() },
+      { id: 'rev1', caravan_id: 'c1', guest_id: 'g1', rating: 5, comment: 'Good', created_at: new Date(), updated_at: new Date() },
+      { id: 'rev2', caravan_id: 'c2', guest_id: 'g2', rating: 4, comment: 'Okay', created_at: new Date(), updated_at: new Date() },
+      { id: 'rev3', caravan_id: 'c1', guest_id: 'g1', rating: 3, comment: 'Bad', created_at: new Date(), updated_at: new Date() },
     ];
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(reviews));
 

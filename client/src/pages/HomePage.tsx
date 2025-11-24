@@ -9,12 +9,14 @@ const HomePage = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const userId = queryParams.get('userId');
+    const role = queryParams.get('role'); // Get role from URL
 
     if (userId) {
       // In a real app, you'd fetch the full user details here.
       // For now, we'll just store the ID and a placeholder token.
       localStorage.setItem('userToken', 'social-login-token-' + userId);
-      localStorage.setItem('userInfo', JSON.stringify({ id: userId, name: '카카오 사용자' })); // Store basic info
+      // Store basic info including the role
+      localStorage.setItem('userInfo', JSON.stringify({ id: userId, name: '카카오 사용자', role: role || 'guest' })); 
 
       // Dispatch event to update header
       window.dispatchEvent(new Event('loginSuccess'));

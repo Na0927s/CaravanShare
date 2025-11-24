@@ -128,7 +128,8 @@ export class ReservationService {
     if (!guestId) {
       throw new BadRequestError('Guest ID is required');
     }
-    return this.reservationRepository.findByGuestId(guestId);
+    const reservations = await this.reservationRepository.findByGuestId(guestId);
+    return reservations;
   }
 
   async getHostReservations(hostId: string): Promise<Reservation[]> {

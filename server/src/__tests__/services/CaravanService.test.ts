@@ -10,6 +10,7 @@ type MockedCaravanRepository = {
   create: jest.Mock;
   update: jest.Mock;
   delete: jest.Mock;
+  findByHostId: jest.Mock; // Added findByHostId for getCaravansByHostId
 };
 
 const mockCaravanRepository: MockedCaravanRepository = {
@@ -18,6 +19,7 @@ const mockCaravanRepository: MockedCaravanRepository = {
   create: jest.fn(),
   update: jest.fn(),
   delete: jest.fn(),
+  findByHostId: jest.fn(), // Initialize mock for findByHostId
 };
 
 // Mock crypto.randomUUID (part of globalThis)
@@ -42,8 +44,8 @@ describe('CaravanService', () => {
   describe('getCaravans', () => {
     it('should return all caravans', async () => {
       const mockCaravans: Caravan[] = [
-        { id: 'c1', hostId: 'h1', name: 'Caravan 1', description: 'Desc 1', location: 'Loc 1', pricePerDay: 100, capacity: 4, amenities: [], imageUrl: 'url1', status: 'available' },
-        { id: 'c2', hostId: 'h1', name: 'Caravan 2', description: 'Desc 2', location: 'Loc 2', pricePerDay: 200, capacity: 6, amenities: [], imageUrl: 'url2', status: 'reserved' },
+        { id: 'c1', host_id: 'h1', name: 'Caravan 1', description: 'Desc 1', location: 'Loc 1', price_per_day: 100, capacity: 4, amenities: [], image_url: 'url1', status: 'available', created_at: new Date(), updated_at: new Date() },
+        { id: 'c2', host_id: 'h1', name: 'Caravan 2', description: 'Desc 2', location: 'Loc 2', price_per_day: 200, capacity: 6, amenities: [], image_url: 'url2', status: 'reserved', created_at: new Date(), updated_at: new Date() },
       ];
       mockCaravanRepository.findAll.mockResolvedValue(mockCaravans);
 
@@ -57,7 +59,7 @@ describe('CaravanService', () => {
   // --- getCaravanById tests ---
   describe('getCaravanById', () => {
     it('should return a caravan by ID', async () => {
-      const mockCaravan: Caravan = { id: 'c1', hostId: 'h1', name: 'Caravan 1', description: 'Desc 1', location: 'Loc 1', pricePerDay: 100, capacity: 4, amenities: [], imageUrl: 'url1', status: 'available' };
+      const mockCaravan: Caravan = { id: 'c1', host_id: 'h1', name: 'Caravan 1', description: 'Desc 1', location: 'Loc 1', price_per_day: 100, capacity: 4, amenities: [], image_url: 'url1', status: 'available', created_at: new Date(), updated_at: new Date() };
       mockCaravanRepository.findById.mockResolvedValue(mockCaravan);
 
       const caravan = await caravanService.getCaravanById('c1');
@@ -80,87 +82,103 @@ describe('CaravanService', () => {
   // --- createCaravan tests ---
   describe('createCaravan', () => {
     // Define a type for the input to createCaravan, matching the service method's signature
-    type CreateCaravanInput = Omit<Caravan, 'id' | 'status' | 'imageUrl'> & { imageUrl?: string; status?: 'available' | 'reserved' | 'maintenance' };
+    type CreateCaravanInput = Omit<Caravan, 'id' | 'status' | 'image_url' | 'created_at' | 'updated_at'> & { image_url?: string; status?: 'available' | 'reserved' | 'maintenance' };
 
     it('should create a new caravan successfully', async () => {
       const caravanData: CreateCaravanInput = {
-        hostId: 'h1',
+        host_id: 'h1',
         name: 'New Caravan',
         description: 'New desc',
         location: 'New Loc',
-        pricePerDay: 150,
+        price_per_day: 150,
         capacity: 5,
         amenities: ['tv'],
-        imageUrl: 'new_url', // Explicitly provide imageUrl
+        image_url: 'new_url', // Explicitly provide image_url
         // status is optional, so we can omit it or provide it
       };
       const newCaravan: Caravan = {
         id: 'mock-uuid',
         ...caravanData,
         status: caravanData.status || 'available', // Add default status
-        imageUrl: caravanData.imageUrl || `https://via.placeholder.com/300x200.png?text=New+Caravan`, // Add default imageUrl
+        image_url: caravanData.image_url || `https://via.placeholder.com/300x200.png?text=New+Caravan`, // Add default image_url
+        created_at: expect.any(Date),
+        updated_at: expect.any(Date),
       };
       mockCaravanRepository.create.mockResolvedValue(newCaravan);
 
       const created = await caravanService.createCaravan(caravanData);
 
       expect(global.crypto.randomUUID).toHaveBeenCalledTimes(1);
-      expect(mockCaravanRepository.create).toHaveBeenCalledWith(newCaravan);
+      expect(mockCaravanRepository.create).toHaveBeenCalledWith(expect.objectContaining({
+        ...caravanData,
+        id: 'mock-uuid',
+        status: 'available',
+        created_at: expect.any(Date),
+        updated_at: expect.any(Date),
+      }));
       expect(created).toEqual(newCaravan);
     });
 
     it('should use default image URL if not provided', async () => {
       const caravanData: CreateCaravanInput = {
-        hostId: 'h1',
+        host_id: 'h1',
         name: 'New Caravan',
         description: 'New desc',
         location: 'New Loc',
-        pricePerDay: 150,
+        price_per_day: 150,
         capacity: 5,
         amenities: ['tv'],
-        // imageUrl is omitted here to test default generation
+        // image_url is omitted here to test default generation
       };
-      const expectedImageUrl = `https://via.placeholder.com/300x200.png?text=New+Caravan`;
+      const expectedImage_url = `https://via.placeholder.com/300x200.png?text=New+Caravan`;
       const newCaravan: Caravan = {
         id: 'mock-uuid',
         ...caravanData,
-        imageUrl: expectedImageUrl, // Service adds default
+        image_url: expectedImage_url, // Service adds default
         status: 'available', // Service adds default
+        created_at: expect.any(Date),
+        updated_at: expect.any(Date),
       };
       mockCaravanRepository.create.mockResolvedValue(newCaravan);
 
       const created = await caravanService.createCaravan(caravanData);
 
-      expect(created.imageUrl).toEqual(expectedImageUrl);
-      expect(mockCaravanRepository.create).toHaveBeenCalledWith(expect.objectContaining({ imageUrl: expectedImageUrl }));
+      expect(created.image_url).toEqual(expectedImage_url);
+      expect(mockCaravanRepository.create).toHaveBeenCalledWith(expect.objectContaining({ image_url: expectedImage_url }));
     });
 
     it('should throw BadRequestError if required fields are missing', async () => {
-      const baseCaravanData: CreateCaravanInput = {
-        hostId: 'h1',
+      const baseCaravanData: Omit<CreateCaravanInput, 'created_at' | 'updated_at'> = {
+        host_id: 'h1',
         name: 'Name',
         description: 'Desc',
         location: 'Loc',
-        pricePerDay: 100,
+        price_per_day: 100,
         capacity: 4,
         amenities: [],
-        imageUrl: 'url',
+        image_url: 'url',
       };
+      await expect(caravanService.createCaravan({ ...baseCaravanData, capacity: undefined as any, price_per_day: undefined as any })).rejects.toThrow(BadRequestError);
+      await expect(caravanService.createCaravan({ ...baseCaravanData, name: undefined as any, price_per_day: undefined as any })).rejects.toThrow(BadRequestError);
+      await expect(caravanService.createCaravan({ ...baseCaravanData, host_id: undefined as any, price_per_day: undefined as any })).rejects.toThrow(BadRequestError);
+
+      // Removed redundant price_per_day undefined in the following tests
       await expect(caravanService.createCaravan({ ...baseCaravanData, capacity: undefined as any })).rejects.toThrow(BadRequestError);
       await expect(caravanService.createCaravan({ ...baseCaravanData, name: undefined as any })).rejects.toThrow(BadRequestError);
-      // Add more checks for other missing required fields if needed
+      await expect(caravanService.createCaravan({ ...baseCaravanData, host_id: undefined as any })).rejects.toThrow(BadRequestError);
     });
+
 
     it('should throw BadRequestError if status is invalid', async () => {
       const baseCaravanData: CreateCaravanInput = {
-        hostId: 'h1',
+        host_id: 'h1',
         name: 'Name',
         description: 'Desc',
         location: 'Loc',
-        pricePerDay: 100,
+        price_per_day: 100,
         capacity: 4,
         amenities: [],
-        imageUrl: 'url',
+        image_url: 'url',
       };
       await expect(caravanService.createCaravan({ ...baseCaravanData, status: 'invalid' as any })).rejects.toThrow(BadRequestError);
     });
@@ -169,8 +187,8 @@ describe('CaravanService', () => {
   // --- updateCaravan tests ---
   describe('updateCaravan', () => {
     it('should update an existing caravan successfully', async () => {
-      const existingCaravan: Caravan = { id: 'c1', hostId: 'h1', name: 'Caravan 1', description: 'Desc 1', location: 'Loc 1', pricePerDay: 100, capacity: 4, amenities: [], imageUrl: 'url1', status: 'available' };
-      const updateData: Partial<Caravan> = { name: 'Updated Name', pricePerDay: 120 };
+      const existingCaravan: Caravan = { id: 'c1', host_id: 'h1', name: 'Caravan 1', description: 'Desc 1', location: 'Loc 1', price_per_day: 100, capacity: 4, amenities: [], image_url: 'url1', status: 'available', created_at: new Date(), updated_at: new Date() };
+      const updateData: Partial<Caravan> = { name: 'Updated Name', price_per_day: 120 };
       const updatedCaravan: Caravan = { ...existingCaravan, ...updateData };
 
       mockCaravanRepository.findById.mockResolvedValue(existingCaravan);
@@ -201,7 +219,7 @@ describe('CaravanService', () => {
   // --- deleteCaravan tests ---
   describe('deleteCaravan', () => {
     it('should delete an existing caravan successfully', async () => {
-      const existingCaravan: Caravan = { id: 'c1', hostId: 'h1', name: 'Caravan 1', description: 'Desc 1', location: 'Loc 1', pricePerDay: 100, capacity: 4, amenities: [], imageUrl: 'url1', status: 'available' };
+      const existingCaravan: Caravan = { id: 'c1', host_id: 'h1', name: 'Caravan 1', description: 'Desc 1', location: 'Loc 1', price_per_day: 100, capacity: 4, amenities: [], image_url: 'url1', status: 'available', created_at: new Date(), updated_at: new Date() };
       mockCaravanRepository.findById.mockResolvedValue(existingCaravan);
       mockCaravanRepository.delete.mockResolvedValue(true);
 
@@ -222,7 +240,7 @@ describe('CaravanService', () => {
     });
 
     it('should throw Error if deletion fails', async () => {
-      const existingCaravan: Caravan = { id: 'c1', hostId: 'h1', name: 'Caravan 1', description: 'Desc 1', location: 'Loc 1', pricePerDay: 100, capacity: 4, amenities: [], imageUrl: 'url1', status: 'available' };
+      const existingCaravan: Caravan = { id: 'c1', host_id: 'h1', name: 'Caravan 1', description: 'Desc 1', location: 'Loc 1', price_per_day: 100, capacity: 4, amenities: [], image_url: 'url1', status: 'available', created_at: new Date(), updated_at: new Date() };
       mockCaravanRepository.findById.mockResolvedValue(existingCaravan);
       mockCaravanRepository.delete.mockResolvedValue(false); // Simulate deletion failure
 
@@ -234,24 +252,24 @@ describe('CaravanService', () => {
   describe('getCaravansByHostId', () => {
     it('should return caravans for a specific host ID', async () => {
       const mockCaravans: Caravan[] = [
-        { id: 'c1', hostId: 'h1', name: 'Caravan 1', description: 'Desc 1', location: 'Loc 1', pricePerDay: 100, capacity: 4, amenities: [], imageUrl: 'url1', status: 'available' },
-        { id: 'c2', hostId: 'h2', name: 'Caravan 2', description: 'Desc 2', location: 'Loc 2', pricePerDay: 200, capacity: 6, amenities: [], imageUrl: 'url2', status: 'reserved' },
-        { id: 'c3', hostId: 'h1', name: 'Caravan 3', description: 'Desc 3', location: 'Loc 3', pricePerDay: 300, capacity: 5, amenities: [], imageUrl: 'url3', status: 'available' },
+        { id: 'c1', host_id: 'h1', name: 'Caravan 1', description: 'Desc 1', location: 'Loc 1', price_per_day: 100, capacity: 4, amenities: [], image_url: 'url1', status: 'available', created_at: new Date(), updated_at: new Date() },
+        { id: 'c2', host_id: 'h2', name: 'Caravan 2', description: 'Desc 2', location: 'Loc 2', price_per_day: 200, capacity: 6, amenities: [], image_url: 'url2', status: 'reserved', created_at: new Date(), updated_at: new Date() },
+        { id: 'c3', host_id: 'h1', name: 'Caravan 3', description: 'Desc 3', location: 'Loc 3', price_per_day: 300, capacity: 5, amenities: [], image_url: 'url3', status: 'available', created_at: new Date(), updated_at: new Date() },
       ];
-      mockCaravanRepository.findAll.mockResolvedValue(mockCaravans);
+      mockCaravanRepository.findByHostId.mockResolvedValue([mockCaravans[0], mockCaravans[2]]);
 
       const hostCaravans = await caravanService.getCaravansByHostId('h1');
 
-      expect(mockCaravanRepository.findAll).toHaveBeenCalledTimes(1);
+      expect(mockCaravanRepository.findByHostId).toHaveBeenCalledTimes(1);
       expect(hostCaravans).toEqual([mockCaravans[0], mockCaravans[2]]);
     });
 
     it('should return an empty array if no caravans for the host ID are found', async () => {
-      mockCaravanRepository.findAll.mockResolvedValue([]);
+      mockCaravanRepository.findByHostId.mockResolvedValue([]);
 
       const hostCaravans = await caravanService.getCaravansByHostId('h99');
 
-      expect(mockCaravanRepository.findAll).toHaveBeenCalledTimes(1);
+      expect(mockCaravanRepository.findByHostId).toHaveBeenCalledTimes(1);
       expect(hostCaravans).toEqual([]);
     });
   });

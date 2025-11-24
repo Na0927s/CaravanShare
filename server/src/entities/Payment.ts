@@ -9,7 +9,7 @@ export class Payment {
   @Column({ name: "reservation_id", unique: true })
   reservation_id!: string;
 
-  @OneToOne(() => Reservation, (reservation) => reservation.payment)
+  @OneToOne(() => Reservation, (reservation) => reservation.payment, { onDelete: 'CASCADE' })
   @JoinColumn({ name: "reservation_id" })
   reservation!: Reservation;
 

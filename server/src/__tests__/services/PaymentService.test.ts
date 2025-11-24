@@ -11,6 +11,7 @@ type MockedPaymentRepository = {
   create: jest.Mock;
   findByReservationId: jest.Mock;
   findAll: jest.Mock;
+  getPaymentHistoryByUserId: jest.Mock; // Added for testing getPaymentHistoryByUserId
 };
 
 type MockedReservationRepository = {
@@ -24,6 +25,7 @@ const mockPaymentRepository: MockedPaymentRepository = {
   create: jest.fn(),
   findByReservationId: jest.fn(),
   findAll: jest.fn(),
+  getPaymentHistoryByUserId: jest.fn(), // Mocked for testing getPaymentHistoryByUserId
 };
 
 const mockReservationRepository: MockedReservationRepository = {
@@ -55,42 +57,46 @@ describe('PaymentService', () => {
 
   // --- processPayment tests ---
   describe('processPayment', () => {
-    const reservationId = 'r1';
-    const guestId = 'g1';
+    const reservation_id = 'r1';
+    const guest_id = 'g1';
     const amount = 500;
     const mockReservation: Reservation = {
-      id: reservationId,
-      caravanId: 'c1',
-      guestId: guestId,
-      startDate: '2025-01-01',
-      endDate: '2025-01-02',
+      id: reservation_id,
+      caravan_id: 'c1',
+      guest_id: guest_id,
+      start_date: new Date('2025-01-01'),
+      end_date: new Date('2025-01-02'),
       status: 'awaiting_payment',
-      totalPrice: amount,
+      total_price: amount,
+      created_at: new Date(),
+      updated_at: new Date(),
     };
 
     it('should process payment successfully and update reservation status', async () => {
       mockReservationRepository.findById.mockResolvedValue(mockReservation);
       mockPaymentRepository.create.mockResolvedValue({
         id: 'mock-uuid',
-        reservationId: reservationId,
+        reservation_id: reservation_id,
         amount: amount,
-        paymentDate: expect.any(String),
+        payment_date: new Date(),
         status: 'completed',
-        transactionId: 'txn_mock-uuid',
+        transaction_id: 'txn_mock-uuid',
+        created_at: new Date(),
+        updated_at: new Date(),
       });
       mockReservationRepository.update.mockResolvedValue({ ...mockReservation, status: 'confirmed' });
 
-      const payment = await paymentService.processPayment(reservationId);
+      const payment = await paymentService.processPayment(reservation_id);
 
-      expect(mockReservationRepository.findById).toHaveBeenCalledWith(reservationId);
+      expect(mockReservationRepository.findById).toHaveBeenCalledWith(reservation_id);
       expect(mockPaymentRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          reservationId: reservationId,
+          reservation_id: reservation_id,
           amount: amount,
           status: 'completed',
         })
       );
-      expect(mockReservationRepository.update).toHaveBeenCalledWith(reservationId, { status: 'confirmed' });
+      expect(mockReservationRepository.update).toHaveBeenCalledWith(reservation_id, { status: 'confirmed' });
       expect(payment).toEqual(expect.objectContaining({ status: 'completed' }));
     });
 
@@ -101,28 +107,28 @@ describe('PaymentService', () => {
     it('should throw NotFoundError if reservation is not found', async () => {
       mockReservationRepository.findById.mockResolvedValue(undefined);
 
-      await expect(paymentService.processPayment(reservationId)).rejects.toThrow(NotFoundError);
+      await expect(paymentService.processPayment(reservation_id)).rejects.toThrow(NotFoundError);
     });
 
     it('should throw BadRequestError if reservation is not awaiting payment', async () => {
       const nonAwaitingReservation = { ...mockReservation, status: 'pending' };
       mockReservationRepository.findById.mockResolvedValue(nonAwaitingReservation);
 
-      await expect(paymentService.processPayment(reservationId)).rejects.toThrow(BadRequestError);
+      await expect(paymentService.processPayment(reservation_id)).rejects.toThrow(BadRequestError);
     });
   });
 
   // --- getPaymentByReservationId tests ---
   describe('getPaymentByReservationId', () => {
-    const reservationId = 'r1';
-    const mockPayment: Payment = { id: 'p1', reservationId, amount: 100, paymentDate: '', status: 'completed' };
+    const reservation_id = 'r1';
+    const mockPayment: Payment = { id: 'p1', reservation_id, amount: 100, payment_date: new Date(), status: 'completed', created_at: new Date(), updated_at: new Date() };
 
     it('should return payment by reservation ID', async () => {
       mockPaymentRepository.findByReservationId.mockResolvedValue(mockPayment);
 
-      const payment = await paymentService.getPaymentByReservationId(reservationId);
+      const payment = await paymentService.getPaymentByReservationId(reservation_id);
 
-      expect(mockPaymentRepository.findByReservationId).toHaveBeenCalledWith(reservationId);
+      expect(mockPaymentRepository.findByReservationId).toHaveBeenCalledWith(reservation_id);
       expect(payment).toEqual(mockPayment);
     });
 
@@ -133,41 +139,41 @@ describe('PaymentService', () => {
     it('should throw NotFoundError if payment is not found', async () => {
       mockPaymentRepository.findByReservationId.mockResolvedValue(undefined);
 
-      await expect(paymentService.getPaymentByReservationId(reservationId)).rejects.toThrow(NotFoundError);
+      await expect(paymentService.getPaymentByReservationId(reservation_id)).rejects.toThrow(NotFoundError);
     });
   });
 
   // --- getPaymentHistoryByUserId tests ---
   describe('getPaymentHistoryByUserId', () => {
-    const userId = 'u1';
+    const user_id = 'u1';
     const mockUserReservations: Reservation[] = [
-      { id: 'r1', guestId: userId, caravanId: 'c1', startDate: '', endDate: '', status: 'confirmed', totalPrice: 100 },
-      { id: 'r2', guestId: userId, caravanId: 'c2', startDate: '', endDate: '', status: 'pending', totalPrice: 200 },
-      { id: 'r3', guestId: 'u2', caravanId: 'c3', startDate: '', endDate: '', status: 'confirmed', totalPrice: 300 }, // Another user's reservation
+      { id: 'r1', guest_id: user_id, caravan_id: 'c1', start_date: new Date(), end_date: new Date(), status: 'confirmed', total_price: 100, created_at: new Date(), updated_at: new Date() },
+      { id: 'r2', guest_id: user_id, caravan_id: 'c2', start_date: new Date(), end_date: new Date(), status: 'pending', total_price: 200, created_at: new Date(), updated_at: new Date() },
+      { id: 'r3', guest_id: 'u2', caravan_id: 'c3', start_date: new Date(), end_date: new Date(), status: 'confirmed', total_price: 300, created_at: new Date(), updated_at: new Date() }, // Another user's reservation
     ];
     const mockAllPayments: Payment[] = [
-      { id: 'p1', reservationId: 'r1', amount: 100, paymentDate: '', status: 'completed' },
-      { id: 'p2', reservationId: 'r2', amount: 200, paymentDate: '', status: 'pending' },
-      { id: 'p3', reservationId: 'r3', amount: 300, paymentDate: '', status: 'completed' },
+      { id: 'p1', reservation_id: 'r1', amount: 100, payment_date: new Date(), status: 'completed', created_at: new Date(), updated_at: new Date() },
+      { id: 'p2', reservation_id: 'r2', amount: 200, payment_date: new Date(), status: 'pending', created_at: new Date(), updated_at: new Date() },
+      { id: 'p3', reservation_id: 'r3', amount: 300, payment_date: new Date(), status: 'completed', created_at: new Date(), updated_at: new Date() },
     ];
 
     beforeEach(() => {
       mockReservationRepository.findByGuestId.mockResolvedValue([mockUserReservations[0], mockUserReservations[1]]);
-      mockPaymentRepository.findAll.mockResolvedValue(mockAllPayments);
+      mockPaymentRepository.getPaymentHistoryByUserId.mockResolvedValue([mockAllPayments[0], mockAllPayments[1]]); // Mock the specific method
     });
 
     it('should return payment history for a specific user ID', async () => {
-      const paymentHistory = await paymentService.getPaymentHistoryByUserId(userId);
+      const paymentHistory = await paymentService.getPaymentHistoryByUserId(user_id);
 
-      expect(mockReservationRepository.findByGuestId).toHaveBeenCalledWith(userId);
-      expect(mockPaymentRepository.findAll).toHaveBeenCalledTimes(1);
+      expect(mockReservationRepository.findByGuestId).toHaveBeenCalledWith(user_id);
+      expect(mockPaymentRepository.getPaymentHistoryByUserId).toHaveBeenCalledWith(user_id);
       expect(paymentHistory).toEqual([mockAllPayments[0], mockAllPayments[1]]);
     });
 
     it('should return empty array if no reservations for the user are found', async () => {
       mockReservationRepository.findByGuestId.mockResolvedValue([]);
 
-      const paymentHistory = await paymentService.getPaymentHistoryByUserId(userId);
+      const paymentHistory = await paymentService.getPaymentHistoryByUserId(user_id);
 
       expect(paymentHistory).toEqual([]);
     });

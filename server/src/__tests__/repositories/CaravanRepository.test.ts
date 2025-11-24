@@ -47,15 +47,17 @@ describe('CaravanRepository', () => {
   it('should create a new caravan', async () => {
     const newCaravan: Caravan = {
       id: 'c1',
-      hostId: 'h1',
+      host_id: 'h1',
       name: 'Test Caravan',
       description: 'A lovely test caravan',
       location: 'Seoul',
-      pricePerDay: 100000,
+      price_per_day: 100000,
       capacity: 4,
       amenities: ['wifi', 'kitchen'],
-      imageUrl: 'http://example.com/c1.jpg',
+      image_url: 'http://example.com/c1.jpg',
       status: 'available',
+      created_at: new Date(),
+      updated_at: new Date(),
     };
 
     (fs.readFile as jest.Mock).mockResolvedValueOnce('[]');
@@ -75,15 +77,17 @@ describe('CaravanRepository', () => {
   it('should find a caravan by ID', async () => {
     const existingCaravan: Caravan = {
       id: 'c1',
-      hostId: 'h1',
+      host_id: 'h1',
       name: 'Test Caravan',
       description: 'A lovely test caravan',
       location: 'Seoul',
-      pricePerDay: 100000,
+      price_per_day: 100000,
       capacity: 4,
       amenities: ['wifi', 'kitchen'],
-      imageUrl: 'http://example.com/c1.jpg',
+      image_url: 'http://example.com/c1.jpg',
       status: 'available',
+      created_at: new Date(),
+      updated_at: new Date(),
     };
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([existingCaravan]));
 
@@ -105,17 +109,19 @@ describe('CaravanRepository', () => {
   it('should update an existing caravan', async () => {
     const existingCaravan: Caravan = {
       id: 'c1',
-      hostId: 'h1',
+      host_id: 'h1',
       name: 'Test Caravan',
       description: 'A lovely test caravan',
       location: 'Seoul',
-      pricePerDay: 100000,
+      price_per_day: 100000,
       capacity: 4,
       amenities: ['wifi', 'kitchen'],
-      imageUrl: 'http://example.com/c1.jpg',
+      image_url: 'http://example.com/c1.jpg',
       status: 'available',
+      created_at: new Date(),
+      updated_at: new Date(),
     };
-    const updatedData = { name: 'Updated Caravan Name', pricePerDay: 120000 };
+    const updatedData: Partial<Caravan> = { name: 'Updated Caravan Name', price_per_day: 120000 };
     const expectedCaravan = { ...existingCaravan, ...updatedData };
 
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([existingCaravan]));
@@ -135,7 +141,7 @@ describe('CaravanRepository', () => {
   it('should return undefined if caravan to update is not found', async () => {
     (fs.readFile as jest.Mock).mockResolvedValueOnce('[]');
 
-    const updatedCaravan = await caravanRepository.update('c99', { name: 'Nonexistent' });
+    const updatedCaravan = await caravanRepository.update('99', { name: 'Nonexistent' });
 
     expect(updatedCaravan).toBeUndefined();
     expect(fs.readFile).toHaveBeenCalledWith(expectedFilePath, 'utf-8');
@@ -145,15 +151,17 @@ describe('CaravanRepository', () => {
   it('should delete an existing caravan', async () => {
     const existingCaravan: Caravan = {
       id: 'c1',
-      hostId: 'h1',
+      host_id: 'h1',
       name: 'Test Caravan',
       description: 'A lovely test caravan',
       location: 'Seoul',
-      pricePerDay: 100000,
+      price_per_day: 100000,
       capacity: 4,
       amenities: ['wifi', 'kitchen'],
-      imageUrl: 'http://example.com/c1.jpg',
+      image_url: 'http://example.com/c1.jpg',
       status: 'available',
+      created_at: new Date(),
+      updated_at: new Date(),
     };
 
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([existingCaravan]));
@@ -182,8 +190,8 @@ describe('CaravanRepository', () => {
 
   it('should return all caravans', async () => {
     const caravans: Caravan[] = [
-      { id: 'c1', hostId: 'h1', name: 'C1', description: 'Desc1', location: 'Loc1', pricePerDay: 100, capacity: 2, amenities: [], imageUrl: 'url1', status: 'available' },
-      { id: 'c2', hostId: 'h1', name: 'C2', description: 'Desc2', location: 'Loc2', pricePerDay: 200, capacity: 4, amenities: [], imageUrl: 'url2', status: 'reserved' },
+      { id: 'c1', host_id: 'h1', name: 'C1', description: 'Desc1', location: 'Loc1', price_per_day: 100, capacity: 2, amenities: [], image_url: 'url1', status: 'available', created_at: new Date(), updated_at: new Date() },
+      { id: 'c2', host_id: 'h1', name: 'C2', description: 'Desc2', location: 'Loc2', price_per_day: 200, capacity: 4, amenities: [], image_url: 'url2', status: 'reserved', created_at: new Date(), updated_at: new Date() },
     ];
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(caravans));
 

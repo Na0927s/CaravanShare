@@ -47,12 +47,14 @@ describe('ReservationRepository', () => {
   it('should create a new reservation', async () => {
     const newReservation: Reservation = {
       id: 'r1',
-      caravanId: 'c1',
-      guestId: 'g1',
-      startDate: '2025-01-01',
-      endDate: '2025-01-05',
+      caravan_id: 'c1',
+      guest_id: 'g1',
+      start_date: new Date('2025-01-01'),
+      end_date: new Date('2025-01-05'),
       status: 'pending',
-      totalPrice: 500000,
+      total_price: 500000,
+      created_at: new Date(),
+      updated_at: new Date(),
     };
 
     (fs.readFile as jest.Mock).mockResolvedValueOnce('[]');
@@ -72,12 +74,14 @@ describe('ReservationRepository', () => {
   it('should find a reservation by ID', async () => {
     const existingReservation: Reservation = {
       id: 'r1',
-      caravanId: 'c1',
-      guestId: 'g1',
-      startDate: '2025-01-01',
-      endDate: '2025-01-05',
+      caravan_id: 'c1',
+      guest_id: 'g1',
+      start_date: new Date('2025-01-01'),
+      end_date: new Date('2025-01-05'),
       status: 'pending',
-      totalPrice: 500000,
+      total_price: 500000,
+      created_at: new Date(),
+      updated_at: new Date(),
     };
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([existingReservation]));
 
@@ -99,14 +103,16 @@ describe('ReservationRepository', () => {
   it('should update an existing reservation', async () => {
     const existingReservation: Reservation = {
       id: 'r1',
-      caravanId: 'c1',
-      guestId: 'g1',
-      startDate: '2025-01-01',
-      endDate: '2025-01-05',
+      caravan_id: 'c1',
+      guest_id: 'g1',
+      start_date: new Date('2025-01-01'),
+      end_date: new Date('2025-01-05'),
       status: 'pending',
-      totalPrice: 500000,
+      total_price: 500000,
+      created_at: new Date(),
+      updated_at: new Date(),
     };
-    const updatedData: Partial<Reservation> = { status: 'approved', totalPrice: 400000 };
+    const updatedData: Partial<Reservation> = { status: 'approved', total_price: 400000 };
     const expectedReservation = { ...existingReservation, ...updatedData };
 
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([existingReservation]));
@@ -136,12 +142,14 @@ describe('ReservationRepository', () => {
   it('should delete an existing reservation', async () => {
     const existingReservation: Reservation = {
       id: 'r1',
-      caravanId: 'c1',
-      guestId: 'g1',
-      startDate: '2025-01-01',
-      endDate: '2025-01-05',
+      caravan_id: 'c1',
+      guest_id: 'g1',
+      start_date: new Date('2025-01-01'),
+      end_date: new Date('2025-01-05'),
       status: 'pending',
-      totalPrice: 500000,
+      total_price: 500000,
+      created_at: new Date(),
+      updated_at: new Date(),
     };
 
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([existingReservation]));
@@ -159,7 +167,7 @@ describe('ReservationRepository', () => {
   });
 
   it('should return false if reservation to delete is not found', async () => {
-    (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([{ id: 'r2', caravanId: 'c2' } as Reservation]));
+    (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify([{ id: 'r2', caravan_id: 'c2' } as Reservation]));
 
     const isDeleted = await reservationRepository.delete('r1');
 
@@ -170,8 +178,8 @@ describe('ReservationRepository', () => {
 
   it('should return all reservations', async () => {
     const reservations: Reservation[] = [
-      { id: 'r1', caravanId: 'c1', guestId: 'g1', startDate: '2025-01-01', endDate: '2025-01-05', status: 'pending', totalPrice: 500000 },
-      { id: 'r2', caravanId: 'c2', guestId: 'g2', startDate: '2025-02-01', endDate: '2025-02-05', status: 'approved', totalPrice: 400000 },
+      { id: 'r1', caravan_id: 'c1', guest_id: 'g1', start_date: new Date('2025-01-01'), end_date: new Date('2025-01-05'), status: 'pending', total_price: 500000, created_at: new Date(), updated_at: new Date() },
+      { id: 'r2', caravan_id: 'c2', guest_id: 'g2', start_date: new Date('2025-02-01'), end_date: new Date('2025-02-05'), status: 'approved', total_price: 400000, created_at: new Date(), updated_at: new Date() },
     ];
     (fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(reservations));
 
@@ -182,12 +190,12 @@ describe('ReservationRepository', () => {
   });
 
   describe('findOverlappingReservations', () => {
-    const caravanId = 'c1';
+    const caravan_id = 'c1';
     const existingReservations: Reservation[] = [
-      { id: 'r1', caravanId: 'c1', guestId: 'g1', startDate: '2025-01-05', endDate: '2025-01-10', status: 'confirmed', totalPrice: 500000 },
-      { id: 'r2', caravanId: 'c1', guestId: 'g2', startDate: '2025-01-12', endDate: '2025-01-15', status: 'pending', totalPrice: 500000 },
-      { id: 'r3', caravanId: 'c2', guestId: 'g1', startDate: '2025-01-01', endDate: '2025-01-03', status: 'confirmed', totalPrice: 300000 }, // Different caravan
-      { id: 'r4', caravanId: 'c1', guestId: 'g3', startDate: '2025-01-01', endDate: '2025-01-03', status: 'rejected', totalPrice: 100000 }, // Rejected status
+      { id: 'r1', caravan_id: 'c1', guest_id: 'g1', start_date: new Date('2025-01-05'), end_date: new Date('2025-01-10'), status: 'confirmed', total_price: 500000, created_at: new Date(), updated_at: new Date() },
+      { id: 'r2', caravan_id: 'c1', guest_id: 'g2', start_date: new Date('2025-01-12'), end_date: new Date('2025-01-15'), status: 'pending', total_price: 500000, created_at: new Date(), updated_at: new Date() },
+      { id: 'r3', caravan_id: 'c2', guest_id: 'g1', start_date: new Date('2025-01-01'), end_date: new Date('2025-01-03'), status: 'confirmed', total_price: 300000, created_at: new Date(), updated_at: new Date() }, // Different caravan
+      { id: 'r4', caravan_id: 'c1', guest_id: 'g3', start_date: new Date('2025-01-01'), end_date: new Date('2025-01-03'), status: 'rejected', total_price: 100000, created_at: new Date(), updated_at: new Date() }, // Rejected status
     ];
 
     beforeEach(() => {
@@ -197,35 +205,35 @@ describe('ReservationRepository', () => {
     it('should find overlapping reservations (start date within existing)', async () => {
       const newStartDate = new Date('2025-01-07');
       const newEndDate = new Date('2025-01-11');
-      const overlapping = await reservationRepository.findOverlappingReservations(caravanId, newStartDate, newEndDate);
+      const overlapping = await reservationRepository.findOverlappingReservations(caravan_id, newStartDate, newEndDate);
       expect(overlapping).toEqual([existingReservations[0]]);
     });
 
     it('should find overlapping reservations (end date within existing)', async () => {
       const newStartDate = new Date('2025-01-03');
       const newEndDate = new Date('2025-01-07');
-      const overlapping = await reservationRepository.findOverlappingReservations(caravanId, newStartDate, newEndDate);
+      const overlapping = await reservationRepository.findOverlappingReservations(caravan_id, newStartDate, newEndDate);
       expect(overlapping).toEqual([existingReservations[0]]);
     });
 
     it('should find overlapping reservations (new reservation encompasses existing)', async () => {
       const newStartDate = new Date('2025-01-01');
       const newEndDate = new Date('2025-01-20');
-      const overlapping = await reservationRepository.findOverlappingReservations(caravanId, newStartDate, newEndDate);
+      const overlapping = await reservationRepository.findOverlappingReservations(caravan_id, newStartDate, newEndDate);
       expect(overlapping).toEqual([existingReservations[0], existingReservations[1]]);
     });
 
     it('should find overlapping reservations (existing reservation encompasses new)', async () => {
       const newStartDate = new Date('2025-01-06');
       const newEndDate = new Date('2025-01-09');
-      const overlapping = await reservationRepository.findOverlappingReservations(caravanId, newStartDate, newEndDate);
+      const overlapping = await reservationRepository.findOverlappingReservations(caravan_id, newStartDate, newEndDate);
       expect(overlapping).toEqual([existingReservations[0]]);
     });
 
     it('should not find overlapping reservations if dates do not overlap', async () => {
       const newStartDate = new Date('2025-01-16');
       const newEndDate = new Date('2025-01-20');
-      const overlapping = await reservationRepository.findOverlappingReservations(caravanId, newStartDate, newEndDate);
+      const overlapping = await reservationRepository.findOverlappingReservations(caravan_id, newStartDate, newEndDate);
       expect(overlapping).toEqual([]);
     });
 
@@ -239,18 +247,18 @@ describe('ReservationRepository', () => {
     it('should not find overlapping reservations with rejected status', async () => {
       const newStartDate = new Date('2025-01-02');
       const newEndDate = new Date('2025-01-03');
-      const overlapping = await reservationRepository.findOverlappingReservations(caravanId, newStartDate, newEndDate);
+      const overlapping = await reservationRepository.findOverlappingReservations(caravan_id, newStartDate, newEndDate);
       expect(overlapping).toEqual([]); // r4 is rejected
     });
   });
 
   describe('findByGuestId', () => {
-    const guestId = 'g1';
+    const guest_id = 'g1';
     const otherGuestId = 'g2';
     const allReservations: Reservation[] = [
-      { id: 'r1', caravanId: 'c1', guestId: 'g1', startDate: '2025-01-01', endDate: '2025-01-05', status: 'pending', totalPrice: 500000 },
-      { id: 'r2', caravanId: 'c2', guestId: 'g2', startDate: '2025-02-01', endDate: '2025-02-05', status: 'approved', totalPrice: 400000 },
-      { id: 'r3', caravanId: 'c3', guestId: 'g1', startDate: '2025-03-01', endDate: '2025-03-05', status: 'confirmed', totalPrice: 600000 },
+      { id: 'r1', caravan_id: 'c1', guest_id: 'g1', start_date: new Date('2025-01-01'), end_date: new Date('2025-01-05'), status: 'pending', total_price: 500000, created_at: new Date(), updated_at: new Date() },
+      { id: 'r2', caravan_id: 'c2', guest_id: 'g2', start_date: new Date('2025-02-01'), end_date: new Date('2025-02-05'), status: 'approved', total_price: 400000, created_at: new Date(), updated_at: new Date() },
+      { id: 'r3', caravan_id: 'c3', guest_id: 'g1', start_date: new Date('2025-03-01'), end_date: new Date('2025-03-05'), status: 'confirmed', total_price: 600000, created_at: new Date(), updated_at: new Date() },
     ];
 
     beforeEach(() => {
@@ -258,7 +266,7 @@ describe('ReservationRepository', () => {
     });
 
     it('should return reservations for a specific guest ID', async () => {
-      const guestReservations = await reservationRepository.findByGuestId(guestId);
+      const guestReservations = await reservationRepository.findByGuestId(guest_id);
       expect(guestReservations).toEqual([allReservations[0], allReservations[2]]);
     });
 
@@ -271,9 +279,9 @@ describe('ReservationRepository', () => {
   describe('findByCaravanIds', () => {
     const caravanIds = ['c1', 'c3'];
     const allReservations: Reservation[] = [
-      { id: 'r1', caravanId: 'c1', guestId: 'g1', startDate: '2025-01-01', endDate: '2025-01-05', status: 'pending', totalPrice: 500000 },
-      { id: 'r2', caravanId: 'c2', guestId: 'g2', startDate: '2025-02-01', endDate: '2025-02-05', status: 'approved', totalPrice: 400000 },
-      { id: 'r3', caravanId: 'c3', guestId: 'g1', startDate: '2025-03-01', endDate: '2025-03-05', status: 'confirmed', totalPrice: 600000 },
+      { id: 'r1', caravan_id: 'c1', guest_id: 'g1', start_date: new Date('2025-01-01'), end_date: new Date('2025-01-05'), status: 'pending', total_price: 500000, created_at: new Date(), updated_at: new Date() },
+      { id: 'r2', caravan_id: 'c2', guest_id: 'g2', start_date: new Date('2025-02-01'), end_date: new Date('2025-02-05'), status: 'approved', total_price: 400000, created_at: new Date(), updated_at: new Date() },
+      { id: 'r3', caravan_id: 'c3', guest_id: 'g1', start_date: new Date('2025-03-01'), end_date: new Date('2025-03-05'), status: 'confirmed', total_price: 600000, created_at: new Date(), updated_at: new Date() },
     ];
 
     beforeEach(() => {

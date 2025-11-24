@@ -38,6 +38,6 @@ export class Reservation {
   @UpdateDateColumn()
   updated_at!: Date;
 
-  @OneToOne(() => Payment, (payment) => payment.reservation)
+  @OneToOne(() => Payment, (payment) => payment.reservation, { onDelete: 'CASCADE' })
   payment!: Payment;
 }
