@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
     port: 5432,
     username: "caravan_user",
     password: process.env.DB_PASSWORD || "0927", // Use the password you set for caravan_user
-    database: "caravan_share",
+    database: process.env.DB_NAME || "caravan_share",
     synchronize: true, // WARNING: synchronize: true is for development only - disables migrations
     logging: false, // Set to true to see SQL queries in console
     entities: [User, Caravan, Reservation, Payment, Review], // Add our entities here
