@@ -44,7 +44,7 @@ export const kakaoCallback = async (req: Request, res: Response) => {
 
     // User exists, log them in and redirect to client homepage with user ID and role.
     res.redirect(`http://localhost:3000/?userId=${user.id}&role=${user.role}`);
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });
     }

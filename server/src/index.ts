@@ -23,6 +23,11 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello from CaravanShare Backend!');
 });
 
+// [수정] DB 연결 없이 바로 서버 시작
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
+
 // Initialize TypeORM Data Source and start the server
 AppDataSource.initialize()
   .then(() => {

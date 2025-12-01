@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // It's a good practice to have a central axios instance
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3001/api',
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001/api',
 });
 
 interface FetchResult<T> {
