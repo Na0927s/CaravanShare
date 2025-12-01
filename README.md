@@ -159,6 +159,16 @@ npm run dev
 
 이 명령어는 루트 `package.json`에 정의되어 있으며, `client`와 `server` 디렉토리 각각에서 `npm start`를 실행하는 것과 같습니다.
 
+
+## 🚀 배포 (Deployment)
+
+현재 AWS EC2 인스턴스에 배포되어 있습니다.
+아래 링크에서 서비스를 확인하실 수 있습니다.
+
+- **URL:** [http://15.165.10.213:3000/](http://15.165.10.213:3000/)
+- **Status:** Beta (로그인 기능 안정화 작업 중)
+
+
 ## 📚 API 문서
 
 ### 사용자 API (`/api/users`)
